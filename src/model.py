@@ -15,6 +15,8 @@ class ForecastResult:
     upper_return: float
     validation_mae: float
     validation_samples: int
+    training_samples: int
+    confidence: str
 
 
 def _model() -> HistGradientBoostingRegressor:
@@ -27,18 +29,32 @@ def _model() -> HistGradientBoostingRegressor:
     )
 
 
+def _minimum_rows(target_column: str) -> int:
+    # Shorter histories are allowed for newer stocks, but never below
+    # 100 labelled observations. Longer horizons naturally have fewer
+    # labelled rows because their forward target needs more future data.
+    return 100
+
+
 def fit_forecast(
     features: pd.DataFrame,
     feature_columns: list[str],
     target_column: str,
-    min_rows: int = 500,
+    min_rows: int | None = None,
 ) -> ForecastResult:
+    required = min_rows if min_rows is not None else _minimum_rows(target_column)
     clean = features.dropna(subset=feature_columns + [target_column]).copy()
-    if len(clean) < min_rows:
-        raise ValueError(f"Not enough observations: {len(clean)} < {min_rows}")
+    if len(clean) < required:
+        raise ValueError(
+            f"Insufficient history for {target_column}: {len(clean)} labelled rows < {required}"
+        )
 
-    split = max(int(len(clean) * 0.80), min_rows - 1)
-    split = min(split, len(clean) - 1)
+    # Keep a real chronological holdout. This avoids using future observations
+    # for validation; time-series validation is preferred to random shuffling.
+    test_size = max(20, int(len(clean) * 0.20))
+    if len(clean) - test_size < 60:
+        test_size = max(10, len(clean) - 60)
+    split = len(clean) - test_size
 
     train = clean.iloc[:split]
     test = clean.iloc[split:]
@@ -62,6 +78,10 @@ def fit_forecast(
     upper = pred + 1.28 * sigma
 
     price = float(latest["Close"])
+    # Confidence is deliberately descriptive, not a claim that the forecast
+    # will be correct.
+    confidence = "high" if len(clean) >= 500 else "medium" if len(clean) >= 200 else "low"
+
     return ForecastResult(
         predicted_return=pred,
         predicted_price=price * (1 + pred),
@@ -69,4 +89,6 @@ def fit_forecast(
         upper_return=upper,
         validation_mae=mae,
         validation_samples=len(test),
+        training_samples=len(clean),
+        confidence=confidence,
     )
