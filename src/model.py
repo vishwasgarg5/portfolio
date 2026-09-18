@@ -31,7 +31,7 @@ def _model() -> HistGradientBoostingRegressor:
 
 def _minimum_rows(target_column: str) -> int:
     # Shorter histories are allowed for newer stocks, but never below
-    # 100 labelled observations. Longer horizons naturally have fewer
+    # 80 labelled observations. Longer horizons naturally have fewer
     # labelled rows because their forward target needs more future data.
     return 80
 
