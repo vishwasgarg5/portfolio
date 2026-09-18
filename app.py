@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 ROOT = Path(__file__).resolve().parent
 PREDICTIONS = ROOT / "predictions" / "latest.csv"
 HISTORY = ROOT / "predictions" / "history.csv"
+BACKTEST = ROOT / "predictions" / "backtest.csv"
 
 st.set_page_config(page_title="Portfolio AI Forecast", page_icon="📈", layout="wide")
 st.title("📈 Portfolio AI Forecast")
@@ -46,6 +47,23 @@ display["Validation MAE"] = display["Validation MAE"].map(
 )
 st.subheader("Portfolio forecast")
 st.dataframe(display, use_container_width=True, hide_index=True)
+
+if BACKTEST.exists():
+    backtest = pd.read_csv(BACKTEST)
+    st.subheader("Walk-forward backtest")
+    if backtest.empty:
+        st.info("No backtest results are available yet. Run the forecast workflow to generate them.")
+    else:
+        bt = backtest.copy()
+        bt["mean_abs_error"] = bt["mean_abs_error"] * 100
+        bt["mean_error"] = bt["mean_error"] * 100
+        bt["direction_accuracy"] = bt["direction_accuracy"] * 100
+        bt = bt.rename(columns={
+            "symbol": "Symbol", "name": "Stock", "horizon": "Horizon",
+            "folds": "Folds", "mean_abs_error": "Mean Absolute Error %",
+            "mean_error": "Mean Error %", "direction_accuracy": "Direction Accuracy %",
+        })
+        st.dataframe(bt[["Symbol", "Stock", "Horizon", "Folds", "Mean Absolute Error %", "Mean Error %", "Direction Accuracy %"]], use_container_width=True, hide_index=True)
 
 if HISTORY.exists():
     history = pd.read_csv(HISTORY)
