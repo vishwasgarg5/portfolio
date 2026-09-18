@@ -7,7 +7,7 @@ import pandas as pd
 from .data import load_history, update_history
 from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
-
+from .tracking import append_forecasts
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "stocks.csv"
@@ -40,11 +40,7 @@ def run(update_data: bool = True) -> pd.DataFrame:
             }
 
             for horizon in HORIZONS:
-                result = fit_forecast(
-                    features,
-                    FEATURE_COLUMNS,
-                    f"target_{horizon}",
-                )
+                result = fit_forecast(features, FEATURE_COLUMNS, f"target_{horizon}")
                 row[f"{horizon}_predicted_price"] = result.predicted_price
                 row[f"{horizon}_expected_return"] = result.predicted_return
                 row[f"{horizon}_lower_price"] = latest_price * (1 + result.lower_return)
@@ -67,4 +63,9 @@ def run(update_data: bool = True) -> pd.DataFrame:
     result_df = pd.DataFrame(rows)
     PREDICTIONS.parent.mkdir(parents=True, exist_ok=True)
     result_df.to_csv(PREDICTIONS, index=False)
+
+    good = result_df[result_df["status"].eq("ok")]
+    if not good.empty:
+        append_forecasts(good.to_dict("records"), pd.Timestamp(datetime.now(timezone.utc).date()))
+
     return result_df
