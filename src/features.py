@@ -14,8 +14,8 @@ HORIZONS = {
 
 def _rsi(close: pd.Series, period: int = 14) -> pd.Series:
     delta = close.diff()
-    gain = delta.clip(lower=0).rolling(period).mean()
-    loss = -delta.clip(upper=0).rolling(period).mean()
+    gain = delta.clip(lower=0).rolling(period, min_periods=max(5, period // 2)).mean()
+    loss = -delta.clip(upper=0).rolling(period, min_periods=max(5, period // 2)).mean()
     rs = gain / loss.replace(0, np.nan)
     return 100 - (100 / (1 + rs))
 
@@ -32,9 +32,9 @@ def make_features(price: pd.DataFrame) -> pd.DataFrame:
     out["return_60d"] = close.pct_change(60)
 
     for n in (5, 10, 20, 50, 100, 200):
-        ma = close.rolling(n).mean()
+        ma = close.rolling(n, min_periods=min(n, 20)).mean()
         out[f"ma_ratio_{n}"] = close / ma - 1
-        out[f"volatility_{n}"] = close.pct_change().rolling(n).std()
+        out[f"volatility_{n}"] = close.pct_change().rolling(n, min_periods=min(n, 20)).std()
 
     out["rsi_14"] = _rsi(close)
     ema12 = close.ewm(span=12, adjust=False).mean()
@@ -42,8 +42,8 @@ def make_features(price: pd.DataFrame) -> pd.DataFrame:
     out["macd"] = ema12 - ema26
     out["macd_signal"] = out["macd"].ewm(span=9, adjust=False).mean()
 
-    mid = close.rolling(20).mean()
-    std = close.rolling(20).std()
+    mid = close.rolling(20, min_periods=10).mean()
+    std = close.rolling(20, min_periods=10).std()
     out["bb_position"] = (close - (mid - 2 * std)) / (4 * std)
 
     out["atr_pct"] = (
@@ -61,7 +61,7 @@ def make_features(price: pd.DataFrame) -> pd.DataFrame:
         / close
     )
 
-    out["volume_ratio_20"] = volume / volume.rolling(20).mean()
+    out["volume_ratio_20"] = volume / volume.rolling(20, min_periods=10).mean()
     out["high_low_range"] = (df["High"] - df["Low"]) / close
 
     for label, days in HORIZONS.items():
