@@ -5,7 +5,3 @@ __pycache__/
 .DS_Store
 .streamlit/secrets.toml
 *.log
-data/*.csv
-!data/.gitkeep
-predictions/*.csv
-!predictions/.gitkeep
