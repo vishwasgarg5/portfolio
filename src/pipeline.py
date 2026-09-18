@@ -39,14 +39,33 @@ def run(update_data: bool = True) -> pd.DataFrame:
                 "status": "ok",
             }
 
+            successful_horizons = 0
             for horizon in HORIZONS:
-                result = fit_forecast(features, FEATURE_COLUMNS, f"target_{horizon}")
-                row[f"{horizon}_predicted_price"] = result.predicted_price
-                row[f"{horizon}_expected_return"] = result.predicted_return
-                row[f"{horizon}_lower_price"] = latest_price * (1 + result.lower_return)
-                row[f"{horizon}_upper_price"] = latest_price * (1 + result.upper_return)
-                row[f"{horizon}_validation_mae"] = result.validation_mae
-                row[f"{horizon}_validation_samples"] = result.validation_samples
+                try:
+                    result = fit_forecast(
+                        features, FEATURE_COLUMNS, f"target_{horizon}"
+                    )
+                    successful_horizons += 1
+                    row[f"{horizon}_status"] = "ok"
+                    row[f"{horizon}_predicted_price"] = result.predicted_price
+                    row[f"{horizon}_expected_return"] = result.predicted_return
+                    row[f"{horizon}_lower_price"] = latest_price * (1 + result.lower_return)
+                    row[f"{horizon}_upper_price"] = latest_price * (1 + result.upper_return)
+                    row[f"{horizon}_validation_mae"] = result.validation_mae
+                    row[f"{horizon}_validation_samples"] = result.validation_samples
+                    row[f"{horizon}_training_samples"] = result.training_samples
+                    row[f"{horizon}_confidence"] = result.confidence
+                except Exception as exc:
+                    row[f"{horizon}_status"] = f"unavailable: {exc}"
+                    for suffix in (
+                        "predicted_price", "expected_return", "lower_price",
+                        "upper_price", "validation_mae", "validation_samples",
+                        "training_samples", "confidence",
+                    ):
+                        row[f"{horizon}_{suffix}"] = pd.NA
+
+            if successful_horizons == 0:
+                row["status"] = "error: no horizon has enough labelled history"
 
             rows.append(row)
         except Exception as exc:
