@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from .data import load_history, update_history
+from .backtest import summarize_backtest, walk_forward_backtest
 from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
 from .tracking import append_forecasts
@@ -12,6 +13,7 @@ from .tracking import append_forecasts
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "stocks.csv"
 PREDICTIONS = ROOT / "predictions" / "latest.csv"
+BACKTEST = ROOT / "predictions" / "backtest.csv"
 
 
 def load_stocks() -> pd.DataFrame:
@@ -21,6 +23,7 @@ def load_stocks() -> pd.DataFrame:
 def run(update_data: bool = True) -> pd.DataFrame:
     stocks = load_stocks()
     rows: list[dict] = []
+    backtest_rows: list[dict] = []
     run_time = datetime.now(timezone.utc).isoformat()
 
     for stock in stocks.to_dict("records"):
@@ -55,6 +58,18 @@ def run(update_data: bool = True) -> pd.DataFrame:
                     row[f"{horizon}_validation_samples"] = result.validation_samples
                     row[f"{horizon}_training_samples"] = result.training_samples
                     row[f"{horizon}_confidence"] = result.confidence
+                    bt = walk_forward_backtest(
+                        features, FEATURE_COLUMNS, f"target_{horizon}",
+                        min_train_rows=80, max_folds=8, step=42,
+                    )
+                    summary = summarize_backtest(bt)
+                    backtest_rows.append({
+                        "run_at_utc": run_time,
+                        "symbol": symbol,
+                        "name": stock["name"],
+                        "horizon": horizon,
+                        **summary,
+                    })
                 except Exception as exc:
                     row[f"{horizon}_status"] = f"unavailable: {exc}"
                     for suffix in (
@@ -82,6 +97,7 @@ def run(update_data: bool = True) -> pd.DataFrame:
     result_df = pd.DataFrame(rows)
     PREDICTIONS.parent.mkdir(parents=True, exist_ok=True)
     result_df.to_csv(PREDICTIONS, index=False)
+    pd.DataFrame(backtest_rows).to_csv(BACKTEST, index=False)
 
     good = result_df[result_df["status"].eq("ok")]
     if not good.empty:
