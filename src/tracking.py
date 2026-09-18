@@ -8,8 +8,6 @@ from .data import load_history
 
 ROOT = Path(__file__).resolve().parents[1]
 HISTORY = ROOT / "predictions" / "history.csv"
-MONTHS = {"3M": 3, "6M": 6, "9M": 9, "12M": 12}
-
 COLUMNS = [
     "forecast_date", "target_date", "symbol", "name", "horizon",
     "current_price", "predicted_price", "predicted_return",
@@ -18,8 +16,24 @@ COLUMNS = [
 ]
 
 
-def _target_date(forecast_date: pd.Timestamp, horizon: str) -> str:
-    return (forecast_date + pd.DateOffset(months=MONTHS[horizon])).date().isoformat()
+def _target_date(forecast_date: pd.Timestamp, symbol: str, horizon: str) -> str:
+    # Evaluation uses the same trading-day horizon used by the model target,
+    # rather than a calendar-month approximation.
+    prices = load_history(symbol)
+    if prices.empty:
+        raise ValueError(f"No history available for {symbol}")
+    dates = pd.DatetimeIndex(prices.index)
+    eligible = dates[dates >= forecast_date]
+    if len(eligible) == 0:
+        start_pos = len(dates) - 1
+    else:
+        start_pos = int(dates.get_loc(eligible[0]))
+    target_pos = start_pos + HORIZONS[horizon]
+    if target_pos >= len(dates):
+        # The target is in the future and the date can still be represented
+        # by extending from the last known trading date.
+        return (dates[-1] + pd.tseries.offsets.BDay(target_pos - (len(dates) - 1))).date().isoformat()
+    return dates[target_pos].date().isoformat()
 
 
 def load_history_table() -> pd.DataFrame:
@@ -73,12 +87,14 @@ def append_forecasts(forecast_rows: list[dict], forecast_date: pd.Timestamp) -> 
     date_str = forecast_date.date().isoformat()
     for row in forecast_rows:
         for horizon in HORIZONS:
+            if row.get(f"{horizon}_status") != "ok":
+                continue
             key = (date_str, str(row["symbol"]), horizon)
             if key in existing_keys:
                 continue
             new_rows.append({
                 "forecast_date": date_str,
-                "target_date": _target_date(forecast_date, horizon),
+                "target_date": _target_date(forecast_date, str(row["symbol"]), horizon),
                 "symbol": row["symbol"],
                 "name": row["name"],
                 "horizon": horizon,
