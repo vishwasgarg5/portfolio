@@ -28,11 +28,13 @@ display = ok[[
     "symbol", "name", "current_price",
     f"{horizon}_predicted_price", f"{horizon}_expected_return",
     f"{horizon}_lower_price", f"{horizon}_upper_price",
-    f"{horizon}_validation_mae",
+    f"{horizon}_validation_mae", f"{horizon}_training_samples",
+    f"{horizon}_confidence", f"{horizon}_status",
 ]].copy()
 display.columns = [
     "Symbol", "Stock", "Current Price", "Predicted Price",
-    "Expected Return", "Lower Range", "Upper Range", "Validation MAE",
+    "Expected Return", "Lower Range", "Upper Range",
+    "Validation MAE", "Training Samples", "Confidence", "Horizon Status",
 ]
 for col in ["Current Price", "Predicted Price", "Lower Range", "Upper Range"]:
     display[col] = display[col].map(lambda x: f"₹{x:,.2f}" if pd.notna(x) else "—")
@@ -77,18 +79,23 @@ st.subheader(f"{row['name']} ({selected})")
 metrics = st.columns(4)
 for col, h in zip(metrics, ["3M", "6M", "9M", "12M"]):
     with col:
-        ret = row[f"{h}_expected_return"]
-        price = row[f"{h}_predicted_price"]
-        st.metric(h, f"₹{price:,.2f}", f"{ret * 100:+.2f}%")
+        ret = row.get(f"{h}_expected_return")
+        price = row.get(f"{h}_predicted_price")
+        if pd.isna(ret) or pd.isna(price):
+            st.metric(h, "Unavailable", "Insufficient history")
+        else:
+            st.metric(h, f"₹{price:,.2f}", f"{ret * 100:+.2f}%")
 
-fig = go.Figure()
-fig.add_trace(go.Bar(
-    x=["3M", "6M", "9M", "12M"],
-    y=[row[f"{h}_expected_return"] * 100 for h in ["3M", "6M", "9M", "12M"]],
-    name="Expected return %",
-))
-fig.update_layout(title="Expected return by horizon", yaxis_title="Expected return (%)", height=360)
-st.plotly_chart(fig, use_container_width=True)
+valid_horizons = [h for h in ["3M", "6M", "9M", "12M"] if pd.notna(row.get(f"{h}_expected_return"))]
+if valid_horizons:
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=valid_horizons,
+        y=[row[f"{h}_expected_return"] * 100 for h in valid_horizons],
+        name="Expected return %",
+    ))
+    fig.update_layout(title="Expected return by horizon", yaxis_title="Expected return (%)", height=360)
+    st.plotly_chart(fig, use_container_width=True)
 
 if HISTORY.exists():
     stock_history = pd.read_csv(HISTORY)
