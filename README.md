@@ -82,7 +82,7 @@ The first model is deliberately conservative and reproducible:
 5. The latest row is passed to the trained model to create the current forecast.
 6. Historical forecasts are retained so future runs can calculate prediction-vs-actual errors.
 
-The initial implementation uses scikit-learn's HistGradientBoostingRegressor, avoiding paid APIs or proprietary model services.
+The initial implementation uses scikit-learn's HistGradientBoostingRegressor, avoiding paid APIs or proprietary model services. Each horizon is evaluated independently: newer stocks can receive forecasts for horizons with enough labelled history, while unavailable long horizons are explicitly marked as insufficient history instead of failing the whole stock. Forecast confidence is also shown as a descriptive history-size indicator, not a probability of success.
 
 ## Important limitation
 
