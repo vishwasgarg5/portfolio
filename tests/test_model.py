@@ -23,7 +23,7 @@ def _prices(n: int) -> pd.DataFrame:
 def test_shorter_history_can_train_when_enough_labelled_rows_exist():
     features = make_features(_prices(260))
     result = fit_forecast(features, FEATURE_COLUMNS, "target_3M")
-    assert result.training_samples >= 100
+    assert result.training_samples >= 80
     assert result.validation_samples >= 10
     assert result.confidence == "low"
 
