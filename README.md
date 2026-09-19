@@ -1,89 +1,30 @@
-# Portfolio AI Forecast
+# Portfolio Forecast & Averaging Report
 
-A free, open-source portfolio forecasting dashboard for Indian equities.
+This repository produces a report, not an app or dashboard.
 
-## Goals
+It uses portfolio quantity and purchase price, historical OHLCV data and out-of-sample model forecasts to produce:
+- 3M, 6M, 9M and 12M predicted prices
+- forecast-vs-actual tracking and walk-forward backtesting
+- current profit/loss relative to purchase price
+- first forecast horizon at or above purchase price
+- averaging scenarios showing additional quantity and capital needed to reduce average cost
 
-- Track the user's portfolio stocks.
-- Download/update historical OHLCV data automatically.
-- Create technical and market features.
-- Produce 3M, 6M, 9M and 12M model forecasts.
-- Store each forecast so it can later be compared with the actual price.
-- Report prediction error by horizon.
-- Show expected return and a forecast range rather than a single number.
-- Improve/calibrate the model from out-of-sample historical errors.
+## Required portfolio input
 
-> Forecasts are statistical model estimates, not guaranteed future prices or investment advice.
+config/stocks.csv contains the 15 holdings and quantities. purchase_price must contain the actual per-share purchase price from the user's portfolio screenshot. Do not invent or estimate this field.
 
-## Current stack
+## Run
 
-- Python
-- Streamlit
-- yfinance
-- pandas / NumPy
-- scikit-learn
-- Plotly
-- GitHub Actions for scheduled data/model updates
-
-## Project structure
-
-~~~~
-portfolio/
-├── app.py
-├── config/
-│   └── stocks.csv
-├── data/
-│   └── .gitkeep
-├── predictions/
-│   └── .gitkeep
-├── src/
-│   ├── __init__.py
-│   ├── data.py
-│   ├── features.py
-│   ├── model.py
-│   └── pipeline.py
-├── scripts/
-│   └── update_forecasts.py
-├── tests/
-│   └── test_features.py
-├── .github/
-│   └── workflows/
-│       └── update-forecasts.yml
-├── requirements.txt
-└── .gitignore
-~~~~
-
-## Run locally
-
-~~~~bash
-python -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
 python scripts/update_forecasts.py
-streamlit run app.py
-~~~~
 
-On Windows PowerShell:
+Outputs:
+- predictions/latest.csv
+- predictions/backtest.csv
+- predictions/history.csv
+- predictions/portfolio_report.csv
+- predictions/portfolio_report.md
 
-~~~~powershell
-.venv\\Scripts\\Activate.ps1
-pip install -r requirements.txt
-streamlit run app.py
-~~~~
+The first forecast horizon at or above purchase price is only the first model point estimate among 3M/6M/9M/12M. It is not a guaranteed date.
 
-## Forecast methodology
-
-The first model is deliberately conservative and reproducible:
-
-1. Historical daily OHLCV is downloaded with yfinance.
-2. Technical features are generated using only information available on or before each observation.
-3. Separate regression models are trained for 3M/6M/9M/12M forward returns.
-4. Time-ordered validation is used instead of random train/test splitting.
-5. The latest row is passed to the trained model to create the current forecast.
-6. Historical forecasts are retained so future runs can calculate prediction-vs-actual errors.
-
-The initial implementation uses scikit-learn's HistGradientBoostingRegressor, avoiding paid APIs or proprietary model services. Each horizon is evaluated independently: newer stocks can receive forecasts for horizons with enough labelled history, while unavailable long horizons are explicitly marked as insufficient history instead of failing the whole stock. Forecast confidence is also shown as a descriptive history-size indicator, not a probability of success.
-
-## Important limitation
-
-Long-horizon stock forecasting is intrinsically uncertain. A forecast should be evaluated by out-of-sample error and calibration over time. The application therefore exposes historical model performance rather than presenting a forecast as a certainty.
+Averaging calculations are mathematical scenarios showing how adding shares at a specified price changes weighted average cost. They are not a recommendation to buy.
