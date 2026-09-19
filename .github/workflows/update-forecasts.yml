@@ -24,13 +24,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Update data and forecasts
+      - name: Update data, forecasts and portfolio report
         run: python scripts/update_forecasts.py
 
-      - name: Commit data and predictions
+      - name: Commit data, predictions and report
         run: |
           git config user.name "portfolio-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -f data/*.csv predictions/*.csv
-          git diff --cached --quiet || git commit -m "chore: update portfolio data and forecasts"
+          git add -f data/*.csv predictions/*.csv predictions/*.md
+          git diff --cached --quiet || git commit -m "chore: update portfolio forecasts and report"
           git push
