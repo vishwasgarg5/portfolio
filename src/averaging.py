@@ -27,6 +27,16 @@ def averaging_scenarios(existing_qty, existing_avg, buy_price, target_fractions=
         })
     return out
 
+def _clean_levels(current_price: float, volatility: float | None = None):
+    """Return conditional buy levels using volatility-aware spacing.
+    Levels remain bounded so the plan cannot suggest extreme orders from a noisy
+    volatility estimate. The first level is always the current-price trigger.
+    """
+    if volatility is None or not math.isfinite(float(volatility)):
+        volatility = 0.04
+    step = min(max(float(volatility), 0.03), 0.10)
+    return (0.0, -step, -2*step, -3*step, -4*step, -5*step)
+
 def build_staged_averaging_plan(
     existing_qty,
     existing_avg,
@@ -34,14 +44,16 @@ def build_staged_averaging_plan(
     forecasts,
     profit_target=0.05,
     max_add_capital_ratio=0.50,
-    levels=(0.0, -0.05, -0.10, -0.15, -0.20, -0.25, -0.30),
+    levels=None,
+    volatility=None,
+    lower_forecasts=None,
 ):
     """Build a conditional multi-entry averaging plan.
 
-    Each level is a separate conditional buy trigger. Capital is split equally
-    across the selected levels and whole shares are used. A plan qualifies only
-    when its cumulative average is at least profit_target below an available
-    forecast exit, within the configured additional-capital budget.
+    Entries are spaced from current price using recent volatility when supplied.
+    The plan is accepted only if the conservative forecast (lower forecast bound,
+    when supplied) still leaves the combined position at least profit_target
+    above its final average. Whole shares are used and capital is capped.
     """
     if existing_qty <= 0 or existing_avg <= 0 or current_price <= 0:
         return None
@@ -50,12 +62,15 @@ def build_staged_averaging_plan(
     if not clean:
         return None
 
+    levels = tuple(levels) if levels is not None else _clean_levels(current_price, volatility)
+    lower_forecasts = lower_forecasts or {}
     max_capital = existing_qty * existing_avg * max_add_capital_ratio
     best = None
+    horizon_order = list(forecasts.keys())
 
-    # Require at least two conditional entries to make this a staged plan.
     for h, forecast in clean:
-        if forecast <= current_price:
+        conservative_exit = float(lower_forecasts.get(h, forecast))
+        if conservative_exit <= current_price:
             continue
         for n in range(2, len(levels) + 1):
             chosen = levels[:n]
@@ -73,8 +88,10 @@ def build_staged_averaging_plan(
                 capital = add_qty * buy
                 total_qty += add_qty
                 total_capital += capital
-                avg = new_average(existing_qty, existing_avg, total_qty, 0) if False else (
-                    existing_qty * existing_avg + sum(r["capital"] for r in rows) + capital
+                avg = (
+                    existing_qty * existing_avg
+                    + sum(r["capital"] for r in rows)
+                    + capital
                 ) / (existing_qty + total_qty)
                 rows.append({
                     "entry": idx,
@@ -87,24 +104,28 @@ def build_staged_averaging_plan(
                 })
             if len(rows) < 2 or total_qty <= 0 or total_capital > max_capital + 1e-9:
                 continue
+
             final_avg = rows[-1]["cumulative_average"]
-            expected_profit = forecast / final_avg - 1.0
-            if expected_profit < profit_target:
+            conservative_profit = conservative_exit / final_avg - 1.0
+            if conservative_profit < profit_target:
                 continue
+
             candidate = {
                 "horizon": h,
                 "forecast_exit_price": forecast,
-                "forecast_profit_percent": expected_profit,
+                "conservative_exit_price": conservative_exit,
+                "forecast_profit_percent": forecast / final_avg - 1.0,
+                "conservative_profit_percent": conservative_profit,
                 "total_additional_quantity": total_qty,
                 "total_capital": total_capital,
                 "final_average": final_avg,
                 "rows": rows,
             }
-            # Prefer earliest qualifying horizon, then fewer entries, then less capital.
-            rank = (list(forecasts.keys()).index(h), n, total_capital)
+            rank = (horizon_order.index(h), n, total_capital)
             if best is None or rank < best["_rank"]:
                 candidate["_rank"] = rank
                 best = candidate
+
     if best is not None:
         best.pop("_rank", None)
     return best
