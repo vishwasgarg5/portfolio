@@ -76,8 +76,8 @@ def main():
         f"P/L:      <b>{money(pl)} ({pct(ret)})</b>",
         "",
         "<pre>",
-        "Index   | Stock      | Qty    | Avg       | Now       | P/L %     | 3M        | 6M        | 9M        | 12M",
-        "--------|------------|--------|-----------|-----------|-----------|-----------|-----------|-----------|-----------",
+        "Index   | Stock      | Qty    | Avg       | Now       | P/L %     | 3M        | 6M        | 9M        | 12M       | 18M       | 24M       | 36M",
+        "--------|------------|--------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------",
     ]
     for i, (_, r) in enumerate(df.iterrows(), 1):
         symbol = str(r["symbol"])[:10]
@@ -85,8 +85,8 @@ def main():
         avg = money(r["purchase_price"])
         now = money(r["current_price"])
         pl_pct = pct(r["current_return"])
-        vals = [money(r.get(f"{h}_predicted_price")) for h in ("3M", "6M", "9M", "12M")]
-        lines.append(f"{i:>5} | {symbol:<10} | {qty:>6} | {avg:>9} | {now:>9} | {pl_pct:>9} | {vals[0]:>9} | {vals[1]:>9} | {vals[2]:>9} | {vals[3]:>9}")
+        vals = [money(r.get(f"{h}_predicted_price")) for h in ("3M", "6M", "9M", "12M", "18M", "24M", "36M")]
+        lines.append(f"{i:>5} | {symbol:<10} | {qty:>6} | {avg:>9} | {now:>9} | {pl_pct:>9} | " + " | ".join(f"{v:>9}" for v in vals))
     lines += [
         "</pre>",
         "AVG = configured purchase price; NOW = latest available market close.",
@@ -98,14 +98,16 @@ def main():
         "🎯 <b>RECOVERY CHECKPOINT</b>",
         "",
         "<pre>",
-        "STOCK       AVG COST   CHECKPOINT",
+        "Index | Stock      | Avg       | 3M        | 6M        | 9M        | 12M       | 18M       | 24M       | 36M       | First",
+        "------|------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|------",
     ]
-    for _, r in df.iterrows():
+    for i, (_, r) in enumerate(df.iterrows(), 1):
         symbol = str(r["symbol"])[:10]
         avg = money(r["purchase_price"])
-        checkpoint = str(r["first_forecast_horizon_at_or_above_purchase_price"])
-        recovery.append(f"{symbol:<10} {avg:>9}   {checkpoint}")
-    recovery += ["</pre>", "Checkpoint = first forecast horizon at/above average cost."]
+        vals = ["YES" if pd.notna(r.get(f"{h}_predicted_price")) and float(r[f"{h}_predicted_price"]) >= float(r["purchase_price"]) else "-" for h in ("3M","6M","9M","12M","18M","24M","36M")]
+        first = str(r["first_forecast_horizon_at_or_above_purchase_price"])
+        recovery.append(f"{i:>5} | {symbol:<10} | {avg:>9} | " + " | ".join(f"{v:>9}" for v in vals) + f" | {first:<6}")
+    recovery += ["</pre>", "YES = forecast reaches/exceeds configured average cost at that horizon. First = earliest model horizon; not a guaranteed date."]
     send_message(token, chat_id, "\n".join(recovery))
 
     if AVG_REPORT.exists():
@@ -119,7 +121,7 @@ def main():
                 "➗ <b>AVERAGING SCENARIOS</b>",
                 "",
                 "<pre>",
-                "STOCK       CURRENT    -5%    -10%    -15%    -20%",
+                "Index | Stock      | Current   | -5%       | -10%      | -15%      | -20%",
             ]
             for _, r in df.iterrows():
                 symbol = str(r["symbol"])[:10]
