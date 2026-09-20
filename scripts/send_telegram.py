@@ -13,6 +13,7 @@ REPORT = ROOT / "predictions" / "portfolio_report.csv"
 AVG_REPORT = ROOT / "predictions" / "averaging_scenarios.csv"
 DIVIDENDS = ROOT / "data" / "dividends.csv"
 DIV_HISTORY = ROOT / "predictions" / "dividend_history.csv"
+DIV_CAPTURE_SUMMARY = ROOT / "predictions" / "dividend_capture_summary.csv"
 
 
 def money(v):
@@ -176,6 +177,30 @@ def main():
                 msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {day:>8}")
             msg += ["</pre>", "Historical averages only; past dividend behaviour does not predict future price moves."]
             send_message(token, chat_id, "\n".join(msg))
+
+
+    if DIV_CAPTURE_SUMMARY.exists():
+        cs = pd.read_csv(DIV_CAPTURE_SUMMARY)
+        if not cs.empty:
+            msg = [
+                "🧪 <b>NIFTY 500 DIVIDEND CAPTURE BACKTEST</b>",
+                "",
+                "<pre>",
+                "EXIT    EVENTS   WIN%   AVG TOTAL   WORST",
+            ]
+            for _, r in cs.iterrows():
+                msg.append(
+                    f"{int(r['exit_days']):>3}d "
+                    f"{int(r['events']):>7} "
+                    f"{float(r['win_rate'])*100:>6.1f}% "
+                    f"{float(r['average_total_return'])*100:>10.1f}% "
+                    f"{float(r['worst_total_return'])*100:>7.1f}%"
+                )
+            msg += [
+                "</pre>",
+                "Historical gross return study across the current Nifty 500 universe; not a buy/sell recommendation.",
+            ]
+            send_message(token, chat_id, "\\n".join(msg))
 
 
 if __name__ == "__main__":
