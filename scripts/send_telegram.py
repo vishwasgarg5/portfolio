@@ -109,25 +109,45 @@ def main():
         "N/A = no valid forecast for that horizon."
     ))
 
-    # Table 3: only stocks with a qualifying early-profit averaging scenario.
-    if AVG_SIGNALS.exists():
-        sig = pd.read_csv(AVG_SIGNALS)
-        signal_rows = []
-        for i, (_, x) in enumerate(sig.iterrows(), 1):
-            if str(x.get("signal")) != "AVERAGING CANDIDATE":
-                continue
-            signal_rows.append([
-                str(i), str(x["symbol"])[:10], money(x["buy_price"]), str(x["horizon"]),
-                str(int(float(x["additional_quantity"]))), money(x["new_average"]),
-                money(x["forecast_exit_price"]), pct(x["forecast_profit_percent"])
-            ])
-        if signal_rows:
-            send_message(token, chat_id, table_message(
-                "EARLY-PROFIT AVERAGING",
-                ["#","Stock","Buy","Horizon","Add Qty","New Avg","Exit","Profit"],
-                signal_rows,
-                "Only qualifying model scenarios are shown; not a guarantee."
-            ))
+    # Table 3: staged multi-entry averaging plan.
+    plan_path = ROOT / "predictions" / "averaging_plan.csv"
+    if plan_path.exists():
+        plan = pd.read_csv(plan_path)
+        if not plan.empty:
+            signal_rows = []
+            for i, (_, x) in enumerate(plan.iterrows(), 1):
+                signal_rows.append([
+                    str(i), str(x["symbol"])[:10], f'B{x["entry"]}',
+                    money(x["buy_price"]), str(int(float(x["additional_quantity"]))),
+                    money(x["capital"]), money(x["cumulative_average"]),
+                    money(x["forecast_exit_price"]), str(x["horizon"]), pct(x["forecast_profit_percent"])
+                ])
+            if signal_rows:
+                send_message(token, chat_id, table_message(
+                    "EARLY-PROFIT AVERAGING PLAN",
+                    ["#","Stock","Buy","Price","Add Qty","Capital","Cum Avg","Exit","Horizon","Profit"],
+                    signal_rows,
+                    "Buy levels are conditional triggers. The model uses a staged plan and whole shares."
+                ))
+    else:
+        if AVG_SIGNALS.exists():
+            sig = pd.read_csv(AVG_SIGNALS)
+            signal_rows = []
+            for i, (_, x) in enumerate(sig.iterrows(), 1):
+                if str(x.get("signal")) != "AVERAGING PLAN":
+                    continue
+                signal_rows.append([
+                    str(i), str(x["symbol"])[:10], money(x["total_capital"]),
+                    str(x["horizon"]), str(int(float(x["total_additional_quantity"]))),
+                    money(x["final_average"]), money(x["forecast_exit_price"]),
+                    pct(x["forecast_profit_percent"])
+                ])
+            if signal_rows:
+                send_message(token, chat_id, table_message(
+                    "EARLY-PROFIT AVERAGING",
+                    ["#","Stock","Capital","Horizon","Add Qty","New Avg","Exit","Profit"],
+                    signal_rows
+                ))
 
     # Final table: upcoming dividend opportunities only.
     if DIVIDENDS.exists():
@@ -135,10 +155,13 @@ def main():
         if not div.empty:
             rows = []
             for i, (_, r) in enumerate(div.sort_values("ex_date").iterrows(), 1):
-                rows.append([str(i), str(r["symbol"])[:10], money(r["dividend_per_share"]),
-                             str(r["ex_date"]), str(r["cum_date"]), pct(r["dividend_yield"])])
+                qty = df.loc[df["symbol"].eq(r["symbol"]), "quantity"]
+                held_qty = int(float(qty.iloc[0])) if not qty.empty and pd.notna(qty.iloc[0]) else 0
+                income = float(r["dividend_per_share"]) * held_qty if pd.notna(r["dividend_per_share"]) else float("nan")
+                rows.append([str(i), str(r["symbol"])[:10], str(held_qty), money(r["dividend_per_share"]),
+                             money(income), str(r["ex_date"]), str(r["cum_date"]), pct(r["dividend_yield"])])
             send_message(token, chat_id, table_message(
-                "DIVIDEND", ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"], rows,
+                "DIVIDEND", ["#","Stock","Qty","Div/SH","Income","Ex-Date","Buy-By","Yield"], rows,
                 "Upcoming dividend opportunities for the configured portfolio."
             ))
 
