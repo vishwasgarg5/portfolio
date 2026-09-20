@@ -172,7 +172,7 @@ def main():
                 "STOCK       EX-DAY   5D TOTAL  RECOVERY",
             ]
             for _, r in g.iterrows():
-                msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {('-' if pd.isna(r['recovery_days']) else f'{r[\"recovery_days\"]:.0f}d'):>8}")
+                day = "-" if pd.isna(r["recovery_days"]) else f"{float(r['recovery_days']):.0f}d"\n                msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {day:>8}")
             msg += ["</pre>", "Historical averages only; past dividend behaviour does not predict future price moves."]
             send_message(token, chat_id, "\n".join(msg))
 
