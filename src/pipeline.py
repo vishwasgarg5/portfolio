@@ -8,6 +8,7 @@ from .calibration import calibrate_return, empirical_error_band
 from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
 from .tracking import append_forecasts, evaluate_pending, load_history_table
+from .dividends import update_dividends
 ROOT=Path(__file__).resolve().parents[1];CONFIG=ROOT/"config/stocks.csv";PREDICTIONS=ROOT/"predictions/latest.csv";BACKTEST=ROOT/"predictions/backtest.csv"
 def load_stocks(): return pd.read_csv(CONFIG)
 def run(update_data=True):
@@ -40,6 +41,13 @@ def run(update_data=True):
             rows.append(row)
         except Exception as exc:rows.append({"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":None,"data_date":None,"status":f"error: {exc}"})
     result_df=pd.DataFrame(rows);PREDICTIONS.parent.mkdir(parents=True,exist_ok=True);result_df.to_csv(PREDICTIONS,index=False);pd.DataFrame(backtest_rows).to_csv(BACKTEST,index=False)
+    try:
+        stocks = load_stocks()
+        prices = {str(r['symbol']): float(r['current_price']) for r in rows if r.get('current_price') is not None}
+        upcoming, historical = update_dividends(stocks, prices)
+        print(f'Dividend events: {len(upcoming)} upcoming, {len(historical)} historical')
+    except Exception as exc:
+        print(f'Dividend update unavailable: {exc}')
     good=result_df[result_df["status"].eq("ok")]
     if not good.empty:
         # Use the latest market-data date, not the calendar date of the workflow run.
