@@ -44,8 +44,8 @@ def run(update_data=True):
     try:
         stocks = load_stocks()
         prices = {str(r['symbol']): float(r['current_price']) for r in rows if r.get('current_price') is not None}
-        upcoming, historical = update_dividends(stocks, prices)
-        print(f'Dividend events: {len(upcoming)} upcoming, {len(historical)} historical')
+        upcoming, historical, capture_summary = update_dividends(stocks, prices)
+        print(f'Dividend events: {len(upcoming)} upcoming, {len(historical)} historical, {len(capture_summary)} capture horizons')
     except Exception as exc:
         print(f'Dividend update unavailable: {exc}')
     good=result_df[result_df["status"].eq("ok")]
