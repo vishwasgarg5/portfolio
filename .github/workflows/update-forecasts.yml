@@ -3,7 +3,8 @@ name: Update portfolio forecasts
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 12 * * 1-5"
+    # 08:30 IST (03:00 UTC), Monday-Friday, before the NSE session.
+    - cron: "0 3 * * 1-5"
 
 permissions:
   contents: write
@@ -34,6 +35,7 @@ jobs:
           git add -f data/*.csv predictions/*.csv predictions/*.md
           git diff --cached --quiet || git commit -m "chore: update portfolio forecasts and report"
           git push
+
       - name: Send Telegram portfolio report
         if: always()
         env:
