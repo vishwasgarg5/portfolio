@@ -124,7 +124,7 @@ def main():
                 "Index | Stock      | Current   | -5%       | -10%      | -15%      | -20%",
                 "------|------------|-----------|-----------|-----------|-----------|-----------",
             ]
-            for _, r in df.iterrows():
+            for i, (_, r) in enumerate(df.iterrows(), 1):
                 symbol = str(r["symbol"])[:10]
                 rows = avg[avg["symbol"].eq(r["symbol"])].drop_duplicates("price_scenario")
                 prices = {}
@@ -174,13 +174,14 @@ def main():
                 "💰 <b>DIVIDEND OPPORTUNITIES</b>",
                 "",
                 "<pre>",
-                "STOCK       DIV/SH  EX-DATE    BUY-BY    YIELD",
+                "Index | Stock      | Div/SH   | Ex-Date    | Buy-By     | Yield",
+                "------|------------|----------|------------|------------|-------",
             ]
-            for _, r in div.sort_values("ex_date").iterrows():
+            for i, (_, r) in enumerate(div.sort_values("ex_date").iterrows(), 1):
                 sym = str(r["symbol"])[:10]
                 ds = money(r["dividend_per_share"]).replace("₹", "")
                 y = pct(r["dividend_yield"])
-                msg.append(f"{sym:<10} {ds:>6} {str(r['ex_date']):<10} {str(r['cum_date']):<10} {y:>6}")
+                msg.append(f"{i:>5} | {sym:<10} | {ds:>8} | {str(r['ex_date']):<10} | {str(r['cum_date']):<10} | {y:>7}")
             msg += ["</pre>", "Buy-by = cum-dividend date for dividend eligibility; not a price prediction."]
             send_message(token, chat_id, "\n".join(msg))
 
@@ -196,11 +197,12 @@ def main():
                 "📈 <b>DIVIDEND HISTORY</b>",
                 "",
                 "<pre>",
-                "STOCK       EX-DAY   5D TOTAL  RECOVERY",
+                "Index | Stock      | Ex-Day    | 5D Total  | Recovery",
+                "------|------------|-----------|-----------|---------",
             ]
-            for _, r in g.iterrows():
+            for i, (_, r) in enumerate(g.iterrows(), 1):
                 day = "-" if pd.isna(r["recovery_days"]) else f"{float(r['recovery_days']):.0f}d"
-                msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {day:>8}")
+                msg.append(f"{i:>5} | {str(r['symbol'])[:10]:<10} | {pct(r['ex_day_return']):>9} | {pct(r['total_return_5d']):>9} | {day:>9}")
             msg += ["</pre>", "Historical averages only; past dividend behaviour does not predict future price moves."]
             send_message(token, chat_id, "\n".join(msg))
 
@@ -212,9 +214,10 @@ def main():
                 "🧪 <b>NIFTY 500 DIVIDEND CAPTURE BACKTEST</b>",
                 "",
                 "<pre>",
-                "EXIT    EVENTS   WIN%   AVG TOTAL   WORST",
+                "Index | Exit | Events | Win %   | Avg Total | Worst",
+                "------|------|--------|---------|-----------|-------",
             ]
-            for _, r in cs.iterrows():
+            for i, (_, r) in enumerate(cs.iterrows(), 1):
                 msg.append(
                     f"{int(r['exit_days']):>3}d "
                     f"{int(r['events']):>7} "
