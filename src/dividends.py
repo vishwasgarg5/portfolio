@@ -79,8 +79,11 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str, float] | No
     today = pd.Timestamp.utcnow().tz_localize(None).normalize()
     prices = prices or {}
 
-    universe = nifty500_universe()
-    universe_by_nse = universe.set_index("nse_symbol").to_dict("index")
+    # Upcoming dividends are needed for the configured portfolio only.
+    # Do not depend on the Nifty 500 universe endpoint: that endpoint can
+    # temporarily fail while the NSE corporate-actions feed is still usable.
+    portfolio_symbols = {_nse_symbol(x) for x in stocks["symbol"].astype(str)}
+    stock_meta = stocks.set_index("symbol").to_dict("index")
 
     actions = _nse_all_corporate_actions()
     required = {"SYMBOL", "PURPOSE", "EX_DATE"}
@@ -93,17 +96,17 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str, float] | No
     actions["record_date"] = pd.to_datetime(actions[record_col], errors="coerce", dayfirst=True) if record_col else pd.NaT
     actions["dividend_per_share"] = actions["PURPOSE"].map(_amount)
     actions = actions[actions["ex_date"].notna() & (actions["ex_date"] >= today)]
-    actions = actions[actions["SYMBOL"].isin(universe_by_nse)]
+    actions = actions[actions["SYMBOL"].isin(portfolio_symbols)]
     rows = []
 
     for r in actions.to_dict("records"):
         nse_symbol = str(r["SYMBOL"])
-        meta = universe_by_nse.get(nse_symbol, {})
+        symbol = f"{nse_symbol}.NS"
+        meta = stock_meta.get(symbol, {})
         ex = r["ex_date"]
         record = r["record_date"] if pd.notna(r["record_date"]) else ex
         buy_by = ex - pd.offsets.BDay(1)
-        symbol = f"{nse_symbol}.NS"
-        price = prices.get(symbol, meta.get("current_price"))
+        price = prices.get(symbol)
         div = r.get("dividend_per_share")
         rows.append({
             "symbol": symbol,
