@@ -85,7 +85,7 @@ def main():
         avg = money(r["purchase_price"])
         now = money(r["current_price"])
         pl_pct = pct(r["current_return"])
-        vals = [money(r.get(f"{h}_predicted_price")) for h in ("3M", "6M", "9M", "12M", "18M", "24M", "36M")]
+        vals = [money(r.get(f"{h}_predicted_price")) if pd.notna(r.get(f"{h}_predicted_price")) else "N/A" for h in ("3M", "6M", "9M", "12M", "18M", "24M", "36M")]
         lines.append(f"{i:>5} | {symbol:<10} | {qty:>6} | {avg:>9} | {now:>9} | {pl_pct:>9} | " + " | ".join(f"{v:>9}" for v in vals))
     lines += [
         "</pre>",
@@ -131,12 +131,12 @@ def main():
                 for _, a in rows.iterrows():
                     prices[str(a["price_scenario"])] = money(a["buy_price"]).replace("₹", "")
                 averaging.append(
-                    f"{symbol:<10} "
-                    f"{prices.get('current','-'):>7} "
-                    f"{prices.get('5% below current','-'):>7} "
-                    f"{prices.get('10% below current','-'):>7} "
-                    f"{prices.get('15% below current','-'):>7} "
-                    f"{prices.get('20% below current','-'):>7}"
+                    f"{i:>5} | {symbol:<10} | "
+                    f"{prices.get('current','-'):>9} | "
+                    f"{prices.get('5% below current','-'):>9} | "
+                    f"{prices.get('10% below current','-'):>9} | "
+                    f"{prices.get('15% below current','-'):>9} | "
+                    f"{prices.get('20% below current','-'):>9}"
                 )
             averaging += [
                 "</pre>",
