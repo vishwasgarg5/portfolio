@@ -32,6 +32,7 @@ def build_report():
     divhist=pd.read_csv(DIV_HISTORY) if DIV_HISTORY.exists() else pd.DataFrame()
     rows=[]
     avg_rows=[]
+    signal_rows=[]
 
     for stock in stocks.to_dict("records"):
         f=forecasts[forecasts["symbol"].eq(stock["symbol"])] if not forecasts.empty and "symbol" in forecasts else pd.DataFrame()
@@ -102,6 +103,38 @@ def build_report():
                         "additional_capital":None if q is None else q*buy
                     })
 
+            # Profit-oriented averaging signal: find the smallest mathematical
+            # averaging capital among price scenarios that can put the new average
+            # below a forecast exit price by the configured profit target.
+            profit_target=0.05
+            scenarios=(("current",current),("5% below",current*0.95),("10% below",current*0.90),("15% below",current*0.85),("20% below",current*0.80))
+            best_signal=None
+            for scenario,buy_price in scenarios:
+                for h in HORIZONS:
+                    forecast=fp[h]
+                    if forecast is None or buy_price<=0 or forecast <= buy_price:
+                        continue
+                    target_avg=forecast/(1+profit_target)
+                    q=quantity_for_target_average(qty,avg,buy_price,target_avg)
+                    if q is None or q <= 0:
+                        continue
+                    capital=q*buy_price
+                    new_avg=new_average= (qty*avg + q*buy_price)/(qty+q)
+                    expected_profit=(forecast/new_avg)-1
+                    candidate={"symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING CANDIDATE",
+                               "buy_price":buy_price,"price_scenario":scenario,"horizon":h,"forecast_exit_price":forecast,
+                               "additional_quantity":math.ceil(q),"capital_required":math.ceil(capital),
+                               "new_average":new_avg,"forecast_profit_percent":expected_profit,
+                               "profit_target_percent":profit_target}
+                    if best_signal is None or candidate["capital_required"] < best_signal["capital_required"]:
+                        best_signal=candidate
+            if best_signal is None:
+                best_signal={"symbol":stock["symbol"],"name":stock["name"],"signal":"NO QUALIFYING AVERAGING SIGNAL",
+                             "buy_price":pd.NA,"price_scenario":pd.NA,"horizon":pd.NA,"forecast_exit_price":pd.NA,
+                             "additional_quantity":pd.NA,"capital_required":pd.NA,"new_average":pd.NA,
+                             "forecast_profit_percent":pd.NA,"profit_target_percent":profit_target}
+            signal_rows.append(best_signal)
+
             for h,p in fp.items():
                 o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg)
                 o[f"{h}_return_vs_purchase"]=pd.NA if p is None else p/avg-1
@@ -128,6 +161,7 @@ def build_report():
     REPORT.parent.mkdir(parents=True,exist_ok=True)
     df.to_csv(REPORT,index=False)
     pd.DataFrame(avg_rows).to_csv(AVG_REPORT,index=False)
+    pd.DataFrame(signal_rows).to_csv(ROOT/"predictions/averaging_profit_signals.csv",index=False)
 
     evaluated=history[history["status"].eq("evaluated")]
     lines=[
@@ -138,7 +172,7 @@ def build_report():
         "Error bands are empirical historical-error bands, not guarantees.",
         "Forecast horizons marked unavailable have insufficient labelled historical data and are not treated as failed forecasts.",
         "The first forecast horizon is a model checkpoint, not a guaranteed date.",
-        "Averaging scenarios are mathematical cost-basis calculations, not buy recommendations.",""
+        "Averaging scenarios are mathematical cost-basis calculations. The profit-signal table is a model-generated scenario, not a guarantee or personalized financial advice.",""
     ]
     if not evaluated.empty:
         mae=pd.to_numeric(evaluated["abs_error"],errors="coerce").mean()
