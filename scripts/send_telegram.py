@@ -76,21 +76,17 @@ def main():
         f"P/L:      <b>{money(pl)} ({pct(ret)})</b>",
         "",
         "<pre>",
-        "STOCK     QTY     AVG     NOW    P/L%      3M      6M      9M     12M",
+        "Index   | Stock      | Qty    | Avg       | Now       | P/L %     | 3M        | 6M        | 9M        | 12M",
+        "--------|------------|--------|-----------|-----------|-----------|-----------|-----------|-----------|-----------",
     ]
-
-    for _, r in df.iterrows():
-        symbol = str(r["symbol"])[:8]
+    for i, (_, r) in enumerate(df.iterrows(), 1):
+        symbol = str(r["symbol"])[:10]
         qty = f"{float(r['quantity']):g}"
-        avg = money(r["purchase_price"]).replace("₹", "")
-        now = money(r["current_price"]).replace("₹", "")
+        avg = money(r["purchase_price"])
+        now = money(r["current_price"])
         pl_pct = pct(r["current_return"])
-        vals = [
-            money(r.get(f"{h}_predicted_price")).replace("₹", "")
-            for h in ("3M", "6M", "9M", "12M")
-        ]
-        lines.append(f"{symbol:<8} {qty:>5} {avg:>7} {now:>7} {pl_pct:>7} {vals[0]:>7} {vals[1]:>7} {vals[2]:>7} {vals[3]:>7}")
-
+        vals = [money(r.get(f"{h}_predicted_price")) for h in ("3M", "6M", "9M", "12M")]
+        lines.append(f"{i:>5} | {symbol:<10} | {qty:>6} | {avg:>9} | {now:>9} | {pl_pct:>9} | {vals[0]:>9} | {vals[1]:>9} | {vals[2]:>9} | {vals[3]:>9}")
     lines += [
         "</pre>",
         "AVG = configured purchase price; NOW = latest available market close.",
