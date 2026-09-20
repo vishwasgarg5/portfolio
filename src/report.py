@@ -126,6 +126,7 @@ def build_report():
             model_quality_ok=any(quality)
             trend_ok=(trend20 is None or trend20 > -0.20) and (ma20 is None or ma20 > -0.15)
             plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok and trend_ok else None
+            if plan is not None: plan["plan_date"]=r.get("market_data_date")
             candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok and trend_ok))
 
             for h,p in fp.items():
@@ -167,7 +168,7 @@ def build_report():
         accepted_capital+=plan["total_capital"]
         signal_rows.append({"symbol":symbol,"name":name,"signal":"AVERAGING PLAN","horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],"conservative_exit_price":plan["conservative_exit_price"],"total_additional_quantity":plan["total_additional_quantity"],"total_capital":plan["total_capital"],"final_average":plan["final_average"],"forecast_profit_percent":plan["forecast_profit_percent"],"conservative_profit_percent":plan["conservative_profit_percent"]})
         for step in plan["rows"]:
-            staged_rows.append({"symbol":symbol,"name":name,"plan_date":r.get("market_data_date"),"signal":"AVERAGING PLAN","entry":step["entry"],"buy_price":step["buy_price"],"additional_quantity":step["additional_quantity"],"capital":step["capital"],"cumulative_quantity":step["cumulative_quantity"],"cumulative_average":step["cumulative_average"],"horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],"conservative_exit_price":plan["conservative_exit_price"],"forecast_profit_percent":plan["forecast_profit_percent"],"conservative_profit_percent":plan["conservative_profit_percent"]})
+            staged_rows.append({"symbol":symbol,"name":name,"plan_date":plan.get("plan_date"),"signal":"AVERAGING PLAN","entry":step["entry"],"buy_price":step["buy_price"],"additional_quantity":step["additional_quantity"],"capital":step["capital"],"cumulative_quantity":step["cumulative_quantity"],"cumulative_average":step["cumulative_average"],"horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],"conservative_exit_price":plan["conservative_exit_price"],"forecast_profit_percent":plan["forecast_profit_percent"],"conservative_profit_percent":plan["conservative_profit_percent"]})
     pd.DataFrame(signal_rows).to_csv(ROOT/"predictions/averaging_profit_signals.csv",index=False)
     pd.DataFrame(staged_rows).to_csv(ROOT/"predictions/averaging_plan.csv",index=False)
 
