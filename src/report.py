@@ -4,15 +4,26 @@ import pandas as pd
 from .averaging import quantity_for_target_average
 from .features import HORIZONS
 from .tracking import load_history_table
-ROOT=Path(__file__).resolve().parents[1];CONFIG=ROOT/"config/stocks.csv";PREDICTIONS=ROOT/"predictions/latest.csv";REPORT=ROOT/"predictions/portfolio_report.csv";REPORT_MD=ROOT/"predictions/portfolio_report.md";AVG_REPORT=ROOT/"predictions/averaging_scenarios.csv"
+ROOT=Path(__file__).resolve().parents[1];CONFIG=ROOT/"config/stocks.csv";PREDICTIONS=ROOT/"predictions/latest.csv";REPORT=ROOT/"predictions/portfolio_report.csv";REPORT_MD=ROOT/"predictions/portfolio_report.md";AVG_REPORT=ROOT/"predictions/averaging_scenarios.csv";DIVIDENDS=ROOT/"data/dividends.csv";DIV_HISTORY=ROOT/"predictions/dividend_history.csv"
 def _num(v): return float(v) if pd.notna(v) else None
 def build_report():
-    stocks=pd.read_csv(CONFIG);forecasts=pd.read_csv(PREDICTIONS) if PREDICTIONS.exists() else pd.DataFrame();history=load_history_table();rows=[];avg_rows=[]
+    stocks=pd.read_csv(CONFIG);forecasts=pd.read_csv(PREDICTIONS) if PREDICTIONS.exists() else pd.DataFrame();history=load_history_table();divs=pd.read_csv(DIVIDENDS) if DIVIDENDS.exists() else pd.DataFrame();divhist=pd.read_csv(DIV_HISTORY) if DIV_HISTORY.exists() else pd.DataFrame();rows=[];avg_rows=[]
     for stock in stocks.to_dict("records"):
         f=forecasts[forecasts["symbol"].eq(stock["symbol"])]
         if f.empty:continue
         r=f.iloc[0];qty=float(stock["shares"]);avg=float(stock["purchase_price"]) if pd.notna(stock.get("purchase_price")) else None;current=_num(r.get("current_price"))
         o={"symbol":stock["symbol"],"name":stock["name"],"quantity":qty,"purchase_price":avg,"current_price":current}
+        d=divs[divs["symbol"].eq(stock["symbol"])] if not divs.empty else pd.DataFrame()
+        if not d.empty:
+            d=d.sort_values("ex_date").iloc[0]
+            o.update(next_dividend_per_share=d.get("dividend_per_share"),next_dividend_yield=d.get("dividend_yield"),next_dividend_ex_date=d.get("ex_date"),next_dividend_record_date=d.get("record_date"),next_dividend_cum_date=d.get("cum_date"),next_dividend_status=d.get("status"))
+        else:
+            o.update(next_dividend_per_share=pd.NA,next_dividend_yield=pd.NA,next_dividend_ex_date=pd.NA,next_dividend_record_date=pd.NA,next_dividend_cum_date=pd.NA,next_dividend_status="NONE")
+        dh=divhist[divhist["symbol"].eq(stock["symbol"])] if not divhist.empty else pd.DataFrame()
+        if not dh.empty:
+            o.update(avg_ex_day_return=pd.to_numeric(dh["ex_day_return"],errors="coerce").mean(),avg_recovery_days=pd.to_numeric(dh["recovery_days"],errors="coerce").mean(),avg_5d_total_return=pd.to_numeric(dh["total_return_5d_including_dividend"],errors="coerce").mean(),historical_dividend_events=len(dh))
+        else:
+            o.update(avg_ex_day_return=pd.NA,avg_recovery_days=pd.NA,avg_5d_total_return=pd.NA,historical_dividend_events=0)
         fp={h:_num(r.get(f"{h}_predicted_price")) for h in HORIZONS}
         if avg is not None and current is not None:
             o.update(invested_value=qty*avg,current_value=qty*current,current_profit_loss=qty*(current-avg),current_return=current/avg-1)
@@ -37,5 +48,5 @@ def build_report():
     for _,r in df.iterrows():
         lines += [f"## {r['name']} ({r['symbol']})",f"- Quantity: {r['quantity']}",f"- Purchase price: {r['purchase_price'] if pd.notna(r['purchase_price']) else 'MISSING'}",f"- Current price: {r['current_price']}",f"- Current P/L: ₹{r['current_profit_loss']:.2f}" if pd.notna(r["current_profit_loss"]) else "- Current P/L: purchase price missing",f"- First forecast horizon at/above purchase price: {r['first_forecast_horizon_at_or_above_purchase_price']}",""]
         for h in HORIZONS: lines.append(f"- {h}: ₹{r[f'{h}_predicted_price']} | model={r[f'{h}_model']} | error band=±{r[f'{h}_error_band']}")
-        lines += ["","Averaging scenarios: see predictions/averaging_scenarios.csv",""]
+        lines += ["","Dividend data: upcoming ex-date/cum-date and historical ex-day/recovery analysis are in the report CSV.","Averaging scenarios: see predictions/averaging_scenarios.csv",""]
     REPORT_MD.write_text("\n".join(lines),encoding="utf-8");return df
