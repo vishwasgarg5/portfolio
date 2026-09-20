@@ -122,6 +122,7 @@ def main():
                 "",
                 "<pre>",
                 "Index | Stock      | Current   | -5%       | -10%      | -15%      | -20%",
+                "------|------------|-----------|-----------|-----------|-----------|-----------",
             ]
             for _, r in df.iterrows():
                 symbol = str(r["symbol"])[:10]
@@ -142,6 +143,29 @@ def main():
                 "These are mathematical averaging scenarios, not buy recommendations.",
             ]
             send_message(token, chat_id, "\n".join(averaging))
+
+            plan = [
+                "🧮 <b>AVERAGING → FORECAST BREAK-EVEN</b>",
+                "",
+                "<pre>",
+                "Index | Stock      | Buy Now   | Horizon | Add Qty    | New Avg   | Capital",
+                "------|------------|-----------|---------|------------|-----------|-----------",
+            ]
+            for i, (_, r) in enumerate(df.iterrows(), 1):
+                best = None
+                for h in ("3M","6M","9M","12M","18M","24M","36M"):
+                    q = r.get(f"{h}_break_even_additional_qty_at_current")
+                    p = r.get(f"{h}_predicted_price")
+                    if pd.notna(q) and pd.notna(p) and float(q) > 0:
+                        best = (h, float(q), float(p))
+                        break
+                if best is None:
+                    plan.append(f"{i:>5} | {str(r['symbol'])[:10]:<10} | {money(r['current_price']):>9} | {'-':<7} | {'-':>10} | {'-':>9} | {'-':>9}")
+                else:
+                    h,q,p=best
+                    plan.append(f"{i:>5} | {str(r['symbol'])[:10]:<10} | {money(r['current_price']):>9} | {h:<7} | {q:>10.0f} | {money(p):>9} | {money(q*float(r['current_price'])):>9}")
+            plan += ["</pre>", "This is break-even arithmetic at the current price, not a buy recommendation or profit guarantee."]
+            send_message(token, chat_id, "\n".join(plan))
 
     if DIVIDENDS.exists():
         div = pd.read_csv(DIVIDENDS)
