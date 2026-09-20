@@ -14,6 +14,7 @@ AVG_SIGNALS = ROOT / "predictions" / "averaging_profit_signals.csv"
 DIVIDENDS = ROOT / "data" / "dividends.csv"
 DIV_HISTORY = ROOT / "predictions" / "dividend_history.csv"
 DIV_CAPTURE_SUMMARY = ROOT / "predictions" / "dividend_capture_summary.csv"
+LEARNING = ROOT / "predictions" / "model_learning.csv"
 
 
 def money(v):
@@ -148,6 +149,24 @@ def main():
                     ["#","Stock","Capital","Horizon","Add Qty","New Avg","Exit","Profit"],
                     signal_rows
                 ))
+
+    # Model learning table: completed prediction-vs-actual performance.
+    if LEARNING.exists():
+        learn = pd.read_csv(LEARNING)
+        if not learn.empty:
+            rows = []
+            for i, (_, r) in enumerate(learn.iterrows(), 1):
+                rows.append([
+                    str(i), str(r["symbol"])[:10], str(r["horizon"]),
+                    str(int(float(r["completed"]))),
+                    pct(r["mae"]), pct(r["direction_accuracy"]), pct(r["bias"])
+                ])
+            send_message(token, chat_id, table_message(
+                "MODEL LEARNING",
+                ["#","Stock","Horizon","Done","MAE","Direction","Bias"],
+                rows,
+                "Completed forecasts are compared with later actual prices and retained for recalibration."
+            ))
 
     # Final table: upcoming dividend opportunities only.
     if DIVIDENDS.exists():
