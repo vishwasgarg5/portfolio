@@ -19,7 +19,7 @@ def run(update_data=True):
         symbol=stock["symbol"]
         try:
             prices=update_history(symbol) if update_data else load_history(symbol);features=make_features(prices,benchmark);latest_price=float(prices["Close"].iloc[-1])
-            row={"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":latest_price,"data_date":prices.index[-1].date().isoformat(),"status":"ok","benchmark_data":"available" if benchmark is not None else "unavailable"}
+            row={"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":latest_price,"data_date":prices.index[-1].date().isoformat(),"status":"ok","benchmark_data":"available" if benchmark is not None else "unavailable","volatility_20":float(features["volatility_20"].iloc[-1]) if pd.notna(features["volatility_20"].iloc[-1]) else pd.NA,"atr_pct":float(features["atr_pct"].iloc[-1]) if pd.notna(features["atr_pct"].iloc[-1]) else pd.NA}
             successful=0
             for horizon in HORIZONS:
                 try:
