@@ -2,7 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import math
 import pandas as pd
-from .averaging import quantity_for_target_average
+from .averaging import quantity_for_target_average, build_staged_averaging_plan
 from .features import HORIZONS
 from .tracking import load_history_table
 
@@ -34,6 +34,7 @@ def build_report():
     rows=[]
     avg_rows=[]
     signal_rows=[]
+    staged_rows=[]
 
     for stock in stocks.to_dict("records"):
         f=forecasts[forecasts["symbol"].eq(stock["symbol"])] if not forecasts.empty and "symbol" in forecasts else pd.DataFrame()
@@ -104,37 +105,32 @@ def build_report():
                         "additional_capital":None if q is None else q*buy
                     })
 
-            # Profit-oriented averaging signal: find the smallest mathematical
-            # averaging capital among price scenarios that can put the new average
-            # below a forecast exit price by the configured profit target.
+            # Multi-entry profit-oriented averaging plan.
             profit_target=0.05
-            scenarios=(("current",current),("5% below",current*0.95),("10% below",current*0.90),("15% below",current*0.85),("20% below",current*0.80))
-            best_signal=None
-            for scenario,buy_price in scenarios:
-                for h in HORIZONS:
-                    forecast=fp[h]
-                    if forecast is None or buy_price<=0 or forecast <= buy_price:
-                        continue
-                    target_avg=forecast/(1+profit_target)
-                    q=quantity_for_target_average(qty,avg,buy_price,target_avg)
-                    if q is None or q <= 0:
-                        continue
-                    capital=q*buy_price
-                    new_avg=new_average= (qty*avg + q*buy_price)/(qty+q)
-                    expected_profit=(forecast/new_avg)-1
-                    candidate={"symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING CANDIDATE",
-                               "buy_price":buy_price,"price_scenario":scenario,"horizon":h,"forecast_exit_price":forecast,
-                               "additional_quantity":math.ceil(q),"capital_required":math.ceil(capital),
-                               "new_average":new_avg,"forecast_profit_percent":expected_profit,
-                               "profit_target_percent":profit_target}
-                    if best_signal is None or candidate["capital_required"] < best_signal["capital_required"]:
-                        best_signal=candidate
-            if best_signal is None:
-                best_signal={"symbol":stock["symbol"],"name":stock["name"],"signal":"NO QUALIFYING AVERAGING SIGNAL",
-                             "buy_price":pd.NA,"price_scenario":pd.NA,"horizon":pd.NA,"forecast_exit_price":pd.NA,
-                             "additional_quantity":pd.NA,"capital_required":pd.NA,"new_average":pd.NA,
-                             "forecast_profit_percent":pd.NA,"profit_target_percent":profit_target}
-            signal_rows.append(best_signal)
+            plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=0.50)
+            if plan is None:
+                signal_rows.append({
+                    "symbol":stock["symbol"],"name":stock["name"],"signal":"NO QUALIFYING AVERAGING PLAN",
+                    "horizon":pd.NA,"forecast_exit_price":pd.NA,"total_additional_quantity":pd.NA,
+                    "total_capital":pd.NA,"final_average":pd.NA,"forecast_profit_percent":pd.NA
+                })
+            else:
+                signal_rows.append({
+                    "symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING PLAN",
+                    "horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],
+                    "total_additional_quantity":plan["total_additional_quantity"],
+                    "total_capital":plan["total_capital"],"final_average":plan["final_average"],
+                    "forecast_profit_percent":plan["forecast_profit_percent"]
+                })
+                for step in plan["rows"]:
+                    staged_rows.append({
+                        "symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING PLAN",
+                        "entry":step["entry"],"buy_price":step["buy_price"],
+                        "additional_quantity":step["additional_quantity"],"capital":step["capital"],
+                        "cumulative_quantity":step["cumulative_quantity"],"cumulative_average":step["cumulative_average"],
+                        "horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],
+                        "forecast_profit_percent":plan["forecast_profit_percent"]
+                    })
 
             for h,p in fp.items():
                 o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg)
@@ -163,6 +159,7 @@ def build_report():
     df.to_csv(REPORT,index=False)
     pd.DataFrame(avg_rows).to_csv(AVG_REPORT,index=False)
     pd.DataFrame(signal_rows).to_csv(ROOT/"predictions/averaging_profit_signals.csv",index=False)
+    pd.DataFrame(staged_rows).to_csv(ROOT/"predictions/averaging_plan.csv",index=False)
 
     evaluated=history[history["status"].eq("evaluated")]
     lines=[
