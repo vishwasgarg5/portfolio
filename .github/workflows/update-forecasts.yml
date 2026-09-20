@@ -42,3 +42,19 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/send_telegram.py
+
+      - name: Send Telegram failure alert
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os, urllib.parse, urllib.request
+          token=os.environ.get("TELEGRAM_BOT_TOKEN"); chat=os.environ.get("TELEGRAM_CHAT_ID")
+          if token and chat:
+              data=urllib.parse.urlencode({"chat_id":chat,"text":"⚠️ <b>PORTFOLIO WORKFLOW FAILED</b>\nCheck the latest GitHub Actions run for the failed step.","parse_mode":"HTML"}).encode()
+              urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",data=data,method="POST"),timeout=30).read()
+          else:
+              print("Telegram failure alert skipped: missing secrets")
+          PY
