@@ -33,7 +33,13 @@ def build_report():
                 for target_pct in (0.95,0.90,0.85):
                     target=avg*target_pct;q=quantity_for_target_average(qty,avg,buy,target)
                     avg_rows.append({"symbol":stock["symbol"],"name":stock["name"],"buy_price":buy,"price_scenario":f"{int(abs(pct)*100)}% below current" if pct else "current","target_average":target,"additional_quantity":q,"additional_capital":None if q is None else q*buy})
-            for h,p in fp.items(): o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg);o[f"{h}_return_vs_purchase"]=pd.NA if p is None else p/avg-1
+            for h,p in fp.items():
+                o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg);o[f"{h}_return_vs_purchase"]=pd.NA if p is None else p/avg-1
+                qreq=quantity_for_target_average(qty,avg,current,p) if p is not None and current is not None and p > current else None
+                o[f"{h}_break_even_additional_qty_at_current"]=qreq
+                o[f"{h}_break_even_additional_capital_at_current"]=None if qreq is None else qreq*current
+            future=[h for h,p in fp.items() if p is not None and p>=avg]
+            o["first_forecast_horizon_at_or_above_purchase_price"]=future[0] if future else "Not reached in 36M forecast"
         else:
             o.update(invested_value=pd.NA,current_value=pd.NA,current_profit_loss=pd.NA,current_return=pd.NA);o["first_forecast_horizon_at_or_above_purchase_price"]="Purchase price required"
             for h in HORIZONS:o[f"{h}_profit_loss_at_forecast"]=pd.NA;o[f"{h}_return_vs_purchase"]=pd.NA
