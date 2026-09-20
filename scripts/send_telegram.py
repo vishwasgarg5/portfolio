@@ -155,7 +155,7 @@ def main():
                 y = pct(r["dividend_yield"])
                 msg.append(f"{sym:<10} {ds:>6} {str(r['ex_date']):<10} {str(r['cum_date']):<10} {y:>6}")
             msg += ["</pre>", "Buy-by = cum-dividend date for dividend eligibility; not a price prediction."]
-            send_message(token, chat_id, "\\n".join(msg))
+            send_message(token, chat_id, "\n".join(msg))
 
     if DIV_HISTORY.exists():
         dh = pd.read_csv(DIV_HISTORY)
@@ -174,7 +174,7 @@ def main():
             for _, r in g.iterrows():
                 msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {('-' if pd.isna(r['recovery_days']) else f'{r[\"recovery_days\"]:.0f}d'):>8}")
             msg += ["</pre>", "Historical averages only; past dividend behaviour does not predict future price moves."]
-            send_message(token, chat_id, "\\n".join(msg))
+            send_message(token, chat_id, "\n".join(msg))
 
 
 if __name__ == "__main__":
