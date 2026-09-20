@@ -92,6 +92,7 @@ def build_report():
 
             future=[h for h,p in fp.items() if p is not None and p>=avg]
             available=[h for h,p in fp.items() if p is not None]
+            trend20=_num(r.get("return_20d")); ma20=_num(r.get("ma_ratio_20"))
             o["trend_20d_return"]=trend20
             o["trend_20d_health"]="stop_averaging" if trend20 is not None and trend20 <= -0.20 else "ok"
             o["first_forecast_horizon_at_or_above_purchase_price"] = (
@@ -123,7 +124,6 @@ def build_report():
                 band=_num(r.get(f"{h}_error_band"))
                 quality.append(conf in {"medium","high"} and mae is not None and band is not None and mae <= MAX_VALIDATION_MAE and band <= MAX_ERROR_BAND)
             model_quality_ok=any(quality)
-            trend20=_num(r.get("return_20d")); ma20=_num(r.get("ma_ratio_20"))
             trend_ok=(trend20 is None or trend20 > -0.20) and (ma20 is None or ma20 > -0.15)
             plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok and trend_ok else None
             candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok and trend_ok))
