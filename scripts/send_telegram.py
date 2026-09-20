@@ -11,6 +11,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "predictions" / "portfolio_report.csv"
 AVG_REPORT = ROOT / "predictions" / "averaging_scenarios.csv"
+DIVIDENDS = ROOT / "data" / "dividends.csv"
+DIV_HISTORY = ROOT / "predictions" / "dividend_history.csv"
 
 
 def money(v):
@@ -137,6 +139,42 @@ def main():
                 "These are mathematical averaging scenarios, not buy recommendations.",
             ]
             send_message(token, chat_id, "\n".join(averaging))
+
+    if DIVIDENDS.exists():
+        div = pd.read_csv(DIVIDENDS)
+        if not div.empty:
+            msg = [
+                "💰 <b>DIVIDEND OPPORTUNITIES</b>",
+                "",
+                "<pre>",
+                "STOCK       DIV/SH  EX-DATE    BUY-BY    YIELD",
+            ]
+            for _, r in div.sort_values("ex_date").iterrows():
+                sym = str(r["symbol"])[:10]
+                ds = money(r["dividend_per_share"]).replace("₹", "")
+                y = pct(r["dividend_yield"])
+                msg.append(f"{sym:<10} {ds:>6} {str(r['ex_date']):<10} {str(r['cum_date']):<10} {y:>6}")
+            msg += ["</pre>", "Buy-by = cum-dividend date for dividend eligibility; not a price prediction."]
+            send_message(token, chat_id, "\\n".join(msg))
+
+    if DIV_HISTORY.exists():
+        dh = pd.read_csv(DIV_HISTORY)
+        if not dh.empty:
+            g = dh.groupby(["symbol", "name"], as_index=False).agg(
+                ex_day_return=("ex_day_return", "mean"),
+                recovery_days=("recovery_days", "mean"),
+                total_return_5d=("total_return_5d_including_dividend", "mean"),
+            )
+            msg = [
+                "📈 <b>DIVIDEND HISTORY</b>",
+                "",
+                "<pre>",
+                "STOCK       EX-DAY   5D TOTAL  RECOVERY",
+            ]
+            for _, r in g.iterrows():
+                msg.append(f"{str(r['symbol'])[:10]:<10} {pct(r['ex_day_return']):>7} {pct(r['total_return_5d']):>9} {('-' if pd.isna(r['recovery_days']) else f'{r[\"recovery_days\"]:.0f}d'):>8}")
+            msg += ["</pre>", "Historical averages only; past dividend behaviour does not predict future price moves."]
+            send_message(token, chat_id, "\\n".join(msg))
 
 
 if __name__ == "__main__":
