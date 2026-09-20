@@ -12,7 +12,7 @@ def build_report():
         f=forecasts[forecasts["symbol"].eq(stock["symbol"])]
         if f.empty:continue
         r=f.iloc[0];qty=float(stock["shares"]);avg=float(stock["purchase_price"]) if pd.notna(stock.get("purchase_price")) else None;current=_num(r.get("current_price"))
-        o={"symbol":stock["symbol"],"name":stock["name"],"quantity":qty,"purchase_price":avg,"current_price":current}
+        o={"symbol":stock["symbol"],"name":stock["name"],"quantity":qty,"purchase_price":avg,"current_price":current,"price_source":"latest available market close","market_data_date":r.get("data_date")}
         d=divs[divs["symbol"].eq(stock["symbol"])] if not divs.empty else pd.DataFrame()
         if not d.empty:
             d=d.sort_values("ex_date").iloc[0]
