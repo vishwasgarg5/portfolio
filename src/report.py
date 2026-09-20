@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+import math
 import pandas as pd
 from .averaging import quantity_for_target_average
 from .features import HORIZONS
