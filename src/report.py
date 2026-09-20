@@ -35,6 +35,11 @@ def build_report():
     avg_rows=[]
     signal_rows=[]
     staged_rows=[]
+    candidate_plans=[]
+    MAX_STOCK_ADD_CAPITAL_RATIO=0.50
+    MAX_PORTFOLIO_ADD_CAPITAL_RATIO=0.20
+    MAX_VALIDATION_MAE=0.20
+    MAX_ERROR_BAND=0.30
 
     for stock in stocks.to_dict("records"):
         f=forecasts[forecasts["symbol"].eq(stock["symbol"])] if not forecasts.empty and "symbol" in forecasts else pd.DataFrame()
@@ -105,39 +110,26 @@ def build_report():
                         "additional_capital":None if q is None else q*buy
                     })
 
-            # Multi-entry profit-oriented averaging plan.
+            # Build a candidate; final acceptance is subject to model-quality and portfolio-wide capital gates.
             profit_target=0.05
-            plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=0.50)
-            if plan is None:
-                signal_rows.append({
-                    "symbol":stock["symbol"],"name":stock["name"],"signal":"NO QUALIFYING AVERAGING PLAN",
-                    "horizon":pd.NA,"forecast_exit_price":pd.NA,"total_additional_quantity":pd.NA,
-                    "total_capital":pd.NA,"final_average":pd.NA,"forecast_profit_percent":pd.NA
-                })
-            else:
-                signal_rows.append({
-                    "symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING PLAN",
-                    "horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],
-                    "total_additional_quantity":plan["total_additional_quantity"],
-                    "total_capital":plan["total_capital"],"final_average":plan["final_average"],
-                    "forecast_profit_percent":plan["forecast_profit_percent"]
-                })
-                for step in plan["rows"]:
-                    staged_rows.append({
-                        "symbol":stock["symbol"],"name":stock["name"],"signal":"AVERAGING PLAN",
-                        "entry":step["entry"],"buy_price":step["buy_price"],
-                        "additional_quantity":step["additional_quantity"],"capital":step["capital"],
-                        "cumulative_quantity":step["cumulative_quantity"],"cumulative_average":step["cumulative_average"],
-                        "horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],
-                        "forecast_profit_percent":plan["forecast_profit_percent"]
-                    })
+            lower_fp={h:_num(r.get(f"{h}_lower_price")) for h in HORIZONS}
+            quality=[]
+            for h in HORIZONS:
+                if fp[h] is None: continue
+                conf=str(r.get(f"{h}_confidence","")).lower()
+                mae=_num(r.get(f"{h}_validation_mae"))
+                band=_num(r.get(f"{h}_error_band"))
+                quality.append(conf in {"medium","high"} and mae is not None and band is not None and mae <= MAX_VALIDATION_MAE and band <= MAX_ERROR_BAND)
+            model_quality_ok=any(quality)
+            plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok else None
+            candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok))
 
             for h,p in fp.items():
                 o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg)
                 o[f"{h}_return_vs_purchase"]=pd.NA if p is None else p/avg-1
                 qreq=quantity_for_target_average(qty,avg,current,p) if p is not None and p>current else None
                 o[f"{h}_break_even_additional_qty_at_current"]=None if qreq is None else math.ceil(qreq)
-                o[f"{h}_break_even_additional_capital_at_current"]=None if qreq is None else qreq*current
+                o[f"{h}_break_even_additional_capital_at_current"]=None if qreq is None else math.ceil(qreq)*current
         else:
             o.update(invested_value=pd.NA,current_value=pd.NA,current_profit_loss=pd.NA,current_return=pd.NA)
             o["first_forecast_horizon_at_or_above_purchase_price"]="Purchase price required"
@@ -152,12 +144,26 @@ def build_report():
             o[f"{h}_status"]=r.get(f"{h}_status")
             o[f"{h}_calibration_adjustment"]=_num(r.get(f"{h}_calibration_adjustment"))
             o[f"{h}_error_band"]=_num(r.get(f"{h}_error_band"))
+            o[f"{h}_confidence"]=r.get(f"{h}_confidence")
+            o[f"{h}_validation_mae"]=_num(r.get(f"{h}_validation_mae"))
         rows.append(o)
 
     df=pd.DataFrame(rows)
     REPORT.parent.mkdir(parents=True,exist_ok=True)
     df.to_csv(REPORT,index=False)
     pd.DataFrame(avg_rows).to_csv(AVG_REPORT,index=False)
+    total_invested=float(pd.to_numeric(df["invested_value"],errors="coerce").sum()) if not df.empty else 0.0
+    portfolio_budget=total_invested*MAX_PORTFOLIO_ADD_CAPITAL_RATIO
+    accepted_capital=0.0
+    for symbol,name,plan,model_quality_ok in sorted(candidate_plans,key=lambda x:((list(HORIZONS.keys()).index(x[2]["horizon"]) if x[2] else 999),(x[2]["total_capital"] if x[2] else float("inf")))):
+        if plan is None or not model_quality_ok or accepted_capital+plan["total_capital"]>portfolio_budget+1e-9:
+            reason="NO QUALIFYING AVERAGING PLAN" if plan is None or not model_quality_ok else "PORTFOLIO BUDGET FULL"
+            signal_rows.append({"symbol":symbol,"name":name,"signal":reason,"horizon":pd.NA,"forecast_exit_price":pd.NA,"total_additional_quantity":pd.NA,"total_capital":pd.NA,"final_average":pd.NA,"forecast_profit_percent":pd.NA})
+            continue
+        accepted_capital+=plan["total_capital"]
+        signal_rows.append({"symbol":symbol,"name":name,"signal":"AVERAGING PLAN","horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],"conservative_exit_price":plan["conservative_exit_price"],"total_additional_quantity":plan["total_additional_quantity"],"total_capital":plan["total_capital"],"final_average":plan["final_average"],"forecast_profit_percent":plan["forecast_profit_percent"],"conservative_profit_percent":plan["conservative_profit_percent"]})
+        for step in plan["rows"]:
+            staged_rows.append({"symbol":symbol,"name":name,"signal":"AVERAGING PLAN","entry":step["entry"],"buy_price":step["buy_price"],"additional_quantity":step["additional_quantity"],"capital":step["capital"],"cumulative_quantity":step["cumulative_quantity"],"cumulative_average":step["cumulative_average"],"horizon":plan["horizon"],"forecast_exit_price":plan["forecast_exit_price"],"conservative_exit_price":plan["conservative_exit_price"],"forecast_profit_percent":plan["forecast_profit_percent"],"conservative_profit_percent":plan["conservative_profit_percent"]})
     pd.DataFrame(signal_rows).to_csv(ROOT/"predictions/averaging_profit_signals.csv",index=False)
     pd.DataFrame(staged_rows).to_csv(ROOT/"predictions/averaging_plan.csv",index=False)
 
@@ -168,6 +174,8 @@ def build_report():
         "The selected model is chosen using chronological holdout error, with a zero-return baseline included.",
         "Forecast calibration uses completed real forecast errors for the same stock/horizon when available, then walk-forward errors.",
         "Error bands are empirical historical-error bands, not guarantees.",
+        "Averaging plans require medium/high model confidence, validation MAE <= 20%, error band <= 30%, and a conservative lower-forecast profit check.",
+        "Portfolio-wide additional averaging capital is capped at 20% of configured invested cost; each stock is capped at 50%.",
         "Forecast horizons marked unavailable have insufficient labelled historical data and are not treated as failed forecasts.",
         "The first forecast horizon is a model checkpoint, not a guaranteed date.",
         "Averaging scenarios are mathematical cost-basis calculations. The profit-signal table is a model-generated scenario, not a guarantee or personalized financial advice.",""
