@@ -28,7 +28,7 @@ def run(update_data=True):
             ohlc=prices[["Open","High","Low","Close"]].apply(pd.to_numeric,errors="coerce")
             if ohlc.isna().all(axis=1).tail(20).any() or (ohlc<=0).any().any(): raise ValueError("invalid OHLC data")
             features=make_features(prices,benchmark);latest_price=float(prices["Close"].iloc[-1])
-            row={"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":latest_price,"data_date":prices.index[-1].date().isoformat(),"status":"ok","benchmark_data":"available" if benchmark is not None else "unavailable","volatility_20":float(features["volatility_20"].iloc[-1]) if pd.notna(features["volatility_20"].iloc[-1]) else pd.NA,"atr_pct":float(features["atr_pct"].iloc[-1]) if pd.notna(features["atr_pct"].iloc[-1]) else pd.NA}
+            row={"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":latest_price,"data_date":prices.index[-1].date().isoformat(),"status":"ok","benchmark_data":"available" if benchmark is not None else "unavailable","volatility_20":float(features["volatility_20"].iloc[-1]) if pd.notna(features["volatility_20"].iloc[-1]) else pd.NA,"atr_pct":float(features["atr_pct"].iloc[-1]) if pd.notna(features["atr_pct"].iloc[-1]) else pd.NA,"return_20d":float(features["return_20d"].iloc[-1]) if pd.notna(features["return_20d"].iloc[-1]) else pd.NA,"ma_ratio_20":float(features["ma_ratio_20"].iloc[-1]) if pd.notna(features["ma_ratio_20"].iloc[-1]) else pd.NA}
             successful=0
             for horizon in HORIZONS:
                 try:
