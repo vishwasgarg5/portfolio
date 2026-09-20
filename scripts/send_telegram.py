@@ -14,6 +14,7 @@ AVG_REPORT = ROOT / "predictions" / "averaging_scenarios.csv"
 DIVIDENDS = ROOT / "data" / "dividends.csv"
 DIV_HISTORY = ROOT / "predictions" / "dividend_history.csv"
 DIV_CAPTURE_SUMMARY = ROOT / "predictions" / "dividend_capture_summary.csv"
+AVG_SIGNALS = ROOT / "predictions" / "averaging_profit_signals.csv"
 
 
 def money(v):
@@ -166,6 +167,23 @@ def main():
                     plan.append(f"{i:>5} | {str(r['symbol'])[:10]:<10} | {money(r['current_price']):>9} | {h:<7} | {q:>10.0f} | {money(p):>9} | {money(q*float(r['current_price'])):>9}")
             plan += ["</pre>", "This is break-even arithmetic at the current price, not a buy recommendation or profit guarantee."]
             send_message(token, chat_id, "\n".join(plan))
+
+    if AVG_SIGNALS.exists():
+        sig = pd.read_csv(AVG_SIGNALS)
+        if not sig.empty:
+            msg = [
+                "🎯 <b>AVERAGING → EARLY PROFIT SCENARIO</b>", "", "<pre>",
+                "Index | Stock      | Buy Price | Horizon | Add Qty | New Avg | Forecast Exit | Profit",
+                "------|------------|-----------|---------|---------|---------|---------------|-------",
+            ]
+            for i, r in enumerate(sig.iterrows(), 1):
+                _, x = r
+                if str(x.get("signal")) != "AVERAGING CANDIDATE":
+                    msg.append(f"{i:>5} | {str(x['symbol'])[:10]:<10} | NO QUALIFYING SIGNAL")
+                    continue
+                msg.append(f"{i:>5} | {str(x['symbol'])[:10]:<10} | {money(x['buy_price']):>9} | {str(x['horizon']):<7} | {float(x['additional_quantity']):>7.0f} | {money(x['new_average']):>7} | {money(x['forecast_exit_price']):>13} | {pct(x['forecast_profit_percent']):>6}")
+            msg += ["</pre>", "Signal selects the lowest-capital mathematical averaging scenario that targets at least +5% at a model forecast horizon. It is a scenario, not a guarantee or personalized financial advice."]
+            send_message(token, chat_id, "\n".join(msg))
 
     if DIVIDENDS.exists():
         div = pd.read_csv(DIVIDENDS)
