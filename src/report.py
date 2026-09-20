@@ -140,7 +140,7 @@ def build_report():
                 o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg)
                 o[f"{h}_return_vs_purchase"]=pd.NA if p is None else p/avg-1
                 qreq=quantity_for_target_average(qty,avg,current,p) if p is not None and p>current else None
-                o[f"{h}_break_even_additional_qty_at_current"]=qreq
+                o[f"{h}_break_even_additional_qty_at_current"]=None if qreq is None else math.ceil(qreq)
                 o[f"{h}_break_even_additional_capital_at_current"]=None if qreq is None else qreq*current
         else:
             o.update(invested_value=pd.NA,current_value=pd.NA,current_profit_loss=pd.NA,current_return=pd.NA)
