@@ -27,6 +27,12 @@ jobs:
       - name: Update data, forecasts and portfolio report
         run: python scripts/update_forecasts.py
 
+      - name: Send Telegram portfolio report
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/send_telegram.py
+
       - name: Commit data, predictions and report
         run: |
           git config user.name "portfolio-bot"
