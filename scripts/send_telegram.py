@@ -15,6 +15,8 @@ DIVIDENDS = ROOT / "data" / "dividends.csv"
 DIV_HISTORY = ROOT / "predictions" / "dividend_history.csv"
 DIV_CAPTURE_SUMMARY = ROOT / "predictions" / "dividend_capture_summary.csv"
 LEARNING = ROOT / "predictions" / "model_learning.csv"
+SCORECARD = ROOT / "predictions" / "model_scorecard.csv"
+AVG_LEARNING = ROOT / "predictions" / "averaging_learning.csv"
 
 
 def money(v):
@@ -167,6 +169,25 @@ def main():
                 rows,
                 "Completed forecasts are compared with later actual prices and retained for recalibration."
             ))
+
+    # Forecast stability table.
+    stability_rows=[]
+    for i,(_,r) in enumerate(df.iterrows(),1):
+        flags=[]
+        for h in ("3M","6M","12M","18M","24M","36M"):
+            s=str(r.get(f"{h}_prediction_stability",""))
+            if s in {"watch","large_change"}: flags.append(f"{h}:{s}")
+        if flags: stability_rows.append([str(i),str(r["symbol"])[:10]," ".join(flags)])
+    if stability_rows:
+        send_message(token,chat_id,table_message("FORECAST STABILITY",["#","Stock","Change"],stability_rows,"Watch = >10% change; large_change = >20% change versus previous run."))
+
+    if AVG_LEARNING.exists():
+        al=pd.read_csv(AVG_LEARNING)
+        if not al.empty and "reached" in al.columns:
+            rows=[]
+            for i,(_,x) in enumerate(al.drop_duplicates(["symbol","entry"]).iterrows(),1):
+                rows.append([str(i),str(x["symbol"])[:10],f'B{int(float(x["entry"]))}',"YES" if bool(x["reached"]) else "NO","YES" if bool(x["exit_reached"]) else "NO",pct(x.get("profit_vs_cumulative_average"))])
+            if rows: send_message(token,chat_id,table_message("AVERAGING LEARNING",["#","Stock","Buy","Hit","Exit","Profit"],rows,"Later market data is used to evaluate prior plan triggers."))
 
     # Final table: upcoming dividend opportunities only.
     if DIVIDENDS.exists():
