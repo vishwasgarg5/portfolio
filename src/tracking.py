@@ -112,8 +112,10 @@ def _evaluate_averaging_plans():
         try:
             prices=load_history(str(r["symbol"]))
             buy=float(r["buy_price"]); exit_target=float(r["forecast_exit_price"])
-            reached_idx=prices.index[prices["Low"]<=buy]
-            exit_idx=prices.index[prices["High"]>=exit_target]
+            start=pd.Timestamp(r.get("plan_date")) if pd.notna(r.get("plan_date")) else prices.index[-1]
+            window=prices.loc[prices.index>=start]
+            reached_idx=window.index[window["Low"]<=buy]
+            exit_idx=window.index[window["High"]>=exit_target]
             reached=bool(len(reached_idx)); exit_reached=bool(len(exit_idx))
             rows.append({**r.to_dict(),"reached":reached,"reached_date":str(reached_idx[0].date()) if reached else "","exit_reached":exit_reached,"actual_exit_price":exit_target if exit_reached else np.nan,"profit_vs_cumulative_average":exit_target/float(r["cumulative_average"])-1 if exit_reached else np.nan})
         except Exception:
