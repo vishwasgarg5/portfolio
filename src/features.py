@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-HORIZONS={"3M":63,"6M":126,"9M":189,"12M":252}
+HORIZONS={"3M":63,"6M":126,"9M":189,"12M":252,"18M":378,"24M":504,"36M":756}
 def _rsi(close,period=14):
     delta=close.diff();gain=delta.clip(lower=0).rolling(period,min_periods=max(5,period//2)).mean();loss=-delta.clip(upper=0).rolling(period,min_periods=max(5,period//2)).mean()
     rs=gain/loss.replace(0,np.nan);return 100-(100/(1+rs))
