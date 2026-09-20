@@ -11,6 +11,8 @@ import yfinance as yf
 ROOT = Path(__file__).resolve().parents[1]
 DIVIDENDS = ROOT / "data" / "dividends.csv"
 HISTORICAL = ROOT / "predictions" / "dividend_history.csv"
+CAPTURE = ROOT / "predictions" / "dividend_capture_backtest.csv"
+CAPTURE_SUMMARY = ROOT / "predictions" / "dividend_capture_summary.csv"
 
 NSE_HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
@@ -190,7 +192,102 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def update_dividends(stocks: pd.DataFrame, prices: dict[str, float]) -> tuple[pd.DataFrame, pd.DataFrame]:
+def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10y") -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Backtest simple dividend-capture exits across the current Nifty 500 universe."""
+    symbols = [s for s in universe["symbol"].dropna().astype(str).unique()]
+    if not symbols:
+        return pd.DataFrame(), pd.DataFrame()
+    try:
+        raw = yf.download(
+            symbols, period=period, auto_adjust=False, actions=True,
+            progress=False, threads=True, group_by="column",
+        )
+    except Exception as exc:
+        print(f"Nifty 500 dividend backtest download failed: {exc}")
+        return pd.DataFrame(), pd.DataFrame()
+    if raw.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    def series(field: str, symbol: str):
+        try:
+            if isinstance(raw.columns, pd.MultiIndex):
+                if field in raw.columns.get_level_values(0):
+                    return raw[field][symbol] if symbol in raw[field].columns else pd.Series(dtype=float)
+                if field in raw.columns.get_level_values(1):
+                    return raw[symbol][field] if symbol in raw[symbol].columns else pd.Series(dtype=float)
+            return raw[field] if field in raw.columns else pd.Series(dtype=float)
+        except Exception:
+            return pd.Series(dtype=float)
+
+    name_map = universe.set_index("symbol")["name"].to_dict()
+    rows = []
+    for symbol in symbols:
+        close = pd.to_numeric(series("Close", symbol), errors="coerce").dropna()
+        dividends = pd.to_numeric(series("Dividends", symbol), errors="coerce").fillna(0.0)
+        if close.empty or dividends.empty:
+            continue
+        close.index = pd.to_datetime(close.index).tz_localize(None)
+        dividends.index = pd.to_datetime(dividends.index).tz_localize(None)
+        dividends = dividends.reindex(close.index).fillna(0.0)
+        event_dates = dividends[dividends > 0].index
+        for ex_date in event_dates:
+            pos = close.index.searchsorted(ex_date)
+            if pos <= 0 or pos >= len(close):
+                continue
+            buy_date = close.index[pos - 1]
+            buy_price = float(close.iloc[pos - 1])
+            div = float(dividends.loc[ex_date])
+            if buy_price <= 0:
+                continue
+            for days in (1, 3, 5, 10, 20):
+                exit_pos = pos + days
+                if exit_pos >= len(close):
+                    continue
+                sell_price = float(close.iloc[exit_pos])
+                price_return = sell_price / buy_price - 1.0
+                dividend_return = div / buy_price
+                total_return = price_return + dividend_return
+                rows.append({
+                    "symbol": symbol, "name": name_map.get(symbol, symbol),
+                    "ex_date": ex_date.date().isoformat(),
+                    "buy_date": buy_date.date().isoformat(),
+                    "buy_price": buy_price, "dividend_per_share": div,
+                    "exit_days": days,
+                    "exit_date": close.index[exit_pos].date().isoformat(),
+                    "sell_price": sell_price,
+                    "price_return": price_return,
+                    "dividend_return": dividend_return,
+                    "total_return": total_return,
+                    "profitable": total_return > 0,
+                })
+
+    result = pd.DataFrame(rows)
+    if result.empty:
+        return result, pd.DataFrame()
+    summary = (
+        result.groupby("exit_days", as_index=False)
+        .agg(
+            events=("total_return", "size"),
+            win_rate=("profitable", "mean"),
+            average_total_return=("total_return", "mean"),
+            median_total_return=("total_return", "median"),
+            worst_total_return=("total_return", "min"),
+            best_total_return=("total_return", "max"),
+            average_price_return=("price_return", "mean"),
+            average_dividend_return=("dividend_return", "mean"),
+        )
+        .sort_values("exit_days")
+    )
+    CAPTURE.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(CAPTURE, index=False)
+    summary.to_csv(CAPTURE_SUMMARY, index=False)
+    return result, summary
+
+
+def update_dividends(stocks: pd.DataFrame, prices: dict[str, float]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     upcoming = fetch_upcoming_dividends(stocks, prices)
     historical = historical_dividend_patterns(stocks)
-    return upcoming, historical
+    universe = nifty500_universe()
+    capture, summary = nifty500_dividend_capture_backtest(universe)
+    print(f"Nifty 500 dividend capture backtest: {len(capture)} rows, {len(summary)} horizons")
+    return upcoming, historical, summary
