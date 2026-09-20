@@ -76,20 +76,23 @@ def main():
         f"P/L:      <b>{money(pl)} ({pct(ret)})</b>",
         "",
         "<pre>",
-        "STOCK       NOW       3M      6M      9M     12M",
+        "STOCK       AVG     NOW    P/L%      3M      6M      9M     12M",
     ]
 
     for _, r in df.iterrows():
         symbol = str(r["symbol"])[:10]
+        avg = money(r["purchase_price"]).replace("₹", "")
         now = money(r["current_price"]).replace("₹", "")
+        pl_pct = pct(r["current_return"])
         vals = [
             money(r.get(f"{h}_predicted_price")).replace("₹", "")
             for h in ("3M", "6M", "9M", "12M")
         ]
-        lines.append(f"{symbol:<10} {now:>7} {vals[0]:>7} {vals[1]:>7} {vals[2]:>7} {vals[3]:>7}")
+        lines.append(f"{symbol:<10} {avg:>7} {now:>7} {pl_pct:>7} {vals[0]:>7} {vals[1]:>7} {vals[2]:>7} {vals[3]:>7}")
 
     lines += [
         "</pre>",
+        "AVG = configured purchase price; NOW = latest available market close.",
         "Forecast prices are model estimates, not guaranteed outcomes.",
     ]
     send_message(token, chat_id, "\n".join(lines))
