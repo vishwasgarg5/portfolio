@@ -41,5 +41,9 @@ def run(update_data=True):
         except Exception as exc:rows.append({"run_at_utc":run_time,"symbol":symbol,"name":stock["name"],"shares":stock["shares"],"current_price":None,"data_date":None,"status":f"error: {exc}"})
     result_df=pd.DataFrame(rows);PREDICTIONS.parent.mkdir(parents=True,exist_ok=True);result_df.to_csv(PREDICTIONS,index=False);pd.DataFrame(backtest_rows).to_csv(BACKTEST,index=False)
     good=result_df[result_df["status"].eq("ok")]
-    if not good.empty:append_forecasts(good.to_dict("records"),pd.Timestamp(datetime.now(timezone.utc).date()))
+    if not good.empty:
+        # Use the latest market-data date, not the calendar date of the workflow run.
+        # A weekend/holiday run therefore keeps the forecast anchored to the last trading session.
+        forecast_date=pd.Timestamp(max(r["data_date"] for r in good.to_dict("records")))
+        append_forecasts(good.to_dict("records"),forecast_date)
     return result_df
