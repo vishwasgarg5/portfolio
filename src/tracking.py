@@ -9,10 +9,11 @@ COLUMNS=["forecast_date","target_date","symbol","name","horizon","purchase_price
 def _target_date(forecast_date,symbol,horizon):
     prices=load_history(symbol)
     if prices.empty: raise ValueError(f"No history available for {symbol}")
-    dates=pd.DatetimeIndex(prices.index);eligible=dates[dates>=forecast_date];start_pos=int(dates.get_loc(eligible[0])) if len(eligible) else len(dates)-1
-    target_pos=start_pos+HORIZONS[horizon]
-    if target_pos>=len(dates): return (dates[-1]+pd.tseries.offsets.BDay(target_pos-(len(dates)-1))).date().isoformat()
-    return dates[target_pos].date().isoformat()
+    # Always anchor to the latest actual trading session in the downloaded history.
+    # This prevents weekends/market holidays from becoming the forecast session.
+    last_date=pd.Timestamp(prices.index[-1])
+    target=last_date+pd.tseries.offsets.BDay(HORIZONS[horizon])
+    return target.date().isoformat()
 
 def load_history_table():
     if not HISTORY.exists(): return pd.DataFrame(columns=COLUMNS)
