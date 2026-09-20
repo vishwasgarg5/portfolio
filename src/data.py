@@ -14,12 +14,12 @@ def _normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     out=out[~out.index.isna()];out=out[~out.index.duplicated(keep="last")].sort_index()
     return out.dropna(subset=["Close"])
 
-def download_history(symbol:str,years:int=7)->pd.DataFrame:
+def download_history(symbol:str,years:int=10)->pd.DataFrame:
     df=yf.download(symbol,period=f"{years}y",interval="1d",auto_adjust=True,progress=False,threads=False)
     if df.empty: raise ValueError(f"No market data returned for {symbol}")
     return _normalise_columns(df)
 
-def update_history(symbol:str,years:int=7)->pd.DataFrame:
+def update_history(symbol:str,years:int=10)->pd.DataFrame:
     DATA_DIR.mkdir(parents=True,exist_ok=True);path=DATA_DIR/f"{symbol.replace('.','_')}.csv"
     fresh=download_history(symbol,years)
     if path.exists():
@@ -33,7 +33,7 @@ def load_history(symbol:str)->pd.DataFrame:
     if not path.exists(): return update_history(symbol)
     return _normalise_columns(pd.read_csv(path,index_col=0,parse_dates=True))
 
-def update_benchmark(years:int=7)->pd.DataFrame:
+def update_benchmark(years:int=10)->pd.DataFrame:
     return update_history("^NSEI",years)
 
 def load_benchmark()->pd.DataFrame:
