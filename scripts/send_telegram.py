@@ -76,11 +76,12 @@ def main():
         f"P/L:      <b>{money(pl)} ({pct(ret)})</b>",
         "",
         "<pre>",
-        "STOCK       AVG     NOW    P/L%      3M      6M      9M     12M",
+        "STOCK     QTY     AVG     NOW    P/L%      3M      6M      9M     12M",
     ]
 
     for _, r in df.iterrows():
-        symbol = str(r["symbol"])[:10]
+        symbol = str(r["symbol"])[:8]
+        qty = f"{float(r['quantity']):g}"
         avg = money(r["purchase_price"]).replace("₹", "")
         now = money(r["current_price"]).replace("₹", "")
         pl_pct = pct(r["current_return"])
@@ -88,7 +89,7 @@ def main():
             money(r.get(f"{h}_predicted_price")).replace("₹", "")
             for h in ("3M", "6M", "9M", "12M")
         ]
-        lines.append(f"{symbol:<10} {avg:>7} {now:>7} {pl_pct:>7} {vals[0]:>7} {vals[1]:>7} {vals[2]:>7} {vals[3]:>7}")
+        lines.append(f"{symbol:<8} {qty:>5} {avg:>7} {now:>7} {pl_pct:>7} {vals[0]:>7} {vals[1]:>7} {vals[2]:>7} {vals[3]:>7}")
 
     lines += [
         "</pre>",
