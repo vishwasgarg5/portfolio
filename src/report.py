@@ -92,6 +92,8 @@ def build_report():
 
             future=[h for h,p in fp.items() if p is not None and p>=avg]
             available=[h for h,p in fp.items() if p is not None]
+            o["trend_20d_return"]=trend20
+            o["trend_20d_health"]="stop_averaging" if trend20 is not None and trend20 <= -0.20 else "ok"
             o["first_forecast_horizon_at_or_above_purchase_price"] = (
                 future[0] if future else ("Not reached in available forecast" if available else "Unavailable: insufficient history")
             )
@@ -121,8 +123,10 @@ def build_report():
                 band=_num(r.get(f"{h}_error_band"))
                 quality.append(conf in {"medium","high"} and mae is not None and band is not None and mae <= MAX_VALIDATION_MAE and band <= MAX_ERROR_BAND)
             model_quality_ok=any(quality)
-            plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok else None
-            candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok))
+            trend20=_num(r.get("return_20d")); ma20=_num(r.get("ma_ratio_20"))
+            trend_ok=(trend20 is None or trend20 > -0.20) and (ma20 is None or ma20 > -0.15)
+            plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok and trend_ok else None
+            candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok and trend_ok))
 
             for h,p in fp.items():
                 o[f"{h}_profit_loss_at_forecast"]=pd.NA if p is None else qty*(p-avg)
@@ -174,7 +178,7 @@ def build_report():
         "The selected model is chosen using chronological holdout error, with a zero-return baseline included.",
         "Forecast calibration uses completed real forecast errors for the same stock/horizon when available, then walk-forward errors.",
         "Error bands are empirical historical-error bands, not guarantees.",
-        "Averaging plans require medium/high model confidence, validation MAE <= 20%, error band <= 30%, and a conservative lower-forecast profit check.",
+        "Averaging plans require medium/high model confidence, validation MAE <= 20%, error band <= 30%, a conservative lower-forecast profit check, and no severe 20-day deterioration.",
         "Portfolio-wide additional averaging capital is capped at 20% of configured invested cost; each stock is capped at 50%.",
         "Forecast horizons marked unavailable have insufficient labelled historical data and are not treated as failed forecasts.",
         "The first forecast horizon is a model checkpoint, not a guaranteed date.",
