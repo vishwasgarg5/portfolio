@@ -200,7 +200,7 @@ def main():
                 "</pre>",
                 "Historical gross return study across the current Nifty 500 universe; not a buy/sell recommendation.",
             ]
-            send_message(token, chat_id, "\\n".join(msg))
+            send_message(token, chat_id, "\n".join(msg))
 
 
 if __name__ == "__main__":
