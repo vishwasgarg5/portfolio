@@ -111,8 +111,7 @@ def main():
     ))
 
     # User-facing averaging output: only the current actionable staged plan.
-    # averaging_learning.csv remains an internal learning/evaluation dataset and
-    # is intentionally never sent to Telegram.
+    # averaging_learning.csv remains an internal learning/evaluation dataset.
     plan_path = ROOT / "predictions" / "averaging_plan.csv"
     if plan_path.exists():
         plan = pd.read_csv(plan_path)
@@ -151,11 +150,6 @@ def main():
                 signal_rows
             ))
 
-    # Model learning remains available internally; it is not a user-facing
-    # Telegram table unless explicitly requested.
-    # Forecast stability is also kept user-facing because it flags meaningful
-    # changes in the current forecast.
-
     stability_rows=[]
     for i,(_,r) in enumerate(df.iterrows(),1):
         flags=[]
@@ -171,22 +165,47 @@ def main():
             "Watch = >10% change; large_change = >20% change versus previous run."
         ))
 
+    # Final table: upcoming dividends for the configured holdings.
+    # Always send a dividend status message, even when there are no upcoming
+    # events, so the report does not appear to have a broken dividend section.
+    dividend_rows = []
     if DIVIDENDS.exists():
         div = pd.read_csv(DIVIDENDS)
-        if not div.empty:
-            rows = []
-            for i, (_, r) in enumerate(div.sort_values("ex_date").iterrows(), 1):
-                qty = df.loc[df["symbol"].eq(r["symbol"]), "quantity"]
+        if not div.empty and "ex_date" in div.columns:
+            div["_ex_date"] = pd.to_datetime(div["ex_date"], errors="coerce")
+            today = pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None).normalize()
+            div = div[div["_ex_date"].notna() & (div["_ex_date"] >= today)].copy()
+            div = div.sort_values("_ex_date")
+
+            for i, (_, r) in enumerate(div.iterrows(), 1):
+                qty = df.loc[df["symbol"].eq(r.get("symbol")), "quantity"]
                 held_qty = int(float(qty.iloc[0])) if not qty.empty and pd.notna(qty.iloc[0]) else 0
-                income = float(r["dividend_per_share"]) * held_qty if pd.notna(r["dividend_per_share"]) else float("nan")
-                rows.append([
-                    str(i), str(r["symbol"])[:10], str(held_qty), money(r["dividend_per_share"]),
-                    money(income), str(r["ex_date"]), str(r["cum_date"]), pct(r["dividend_yield"])
+                income = (
+                    float(r["dividend_per_share"]) * held_qty
+                    if pd.notna(r.get("dividend_per_share"))
+                    else float("nan")
+                )
+                dividend_rows.append([
+                    str(i), str(r.get("symbol", ""))[:10], str(held_qty),
+                    money(r.get("dividend_per_share")), money(income),
+                    str(r.get("ex_date", "")), str(r.get("cum_date", "")),
+                    pct(r.get("dividend_yield"))
                 ])
-            send_message(token, chat_id, table_message(
-                "DIVIDEND", ["#","Stock","Qty","Div/SH","Income","Ex-Date","Buy-By","Yield"], rows,
-                "Upcoming dividend opportunities for the configured portfolio."
-            ))
+
+    if dividend_rows:
+        send_message(token, chat_id, table_message(
+            "DIVIDEND",
+            ["#","Stock","Qty","Div/SH","Income","Ex-Date","Buy-By","Yield"],
+            dividend_rows,
+            "Upcoming dividend opportunities for the configured portfolio."
+        ))
+    else:
+        send_message(token, chat_id, table_message(
+            "DIVIDEND",
+            ["#","Stock","Qty","Div/SH","Income","Ex-Date","Buy-By","Yield"],
+            [["-","NO UPCOMING","-","-","-","-","-","-"]],
+            "No upcoming dividend has been published for the configured holdings."
+        ))
 
 
 if __name__ == "__main__":
