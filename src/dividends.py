@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import io
 import re
 from pathlib import Path
 
@@ -25,22 +24,33 @@ NSE_HEADERS = {
 def _nse_session() -> requests.Session:
     s = requests.Session()
     s.headers.update(NSE_HEADERS)
-    s.get("https://www.nseindia.com/", timeout=20)
+    r = s.get("https://www.nseindia.com/", timeout=20)
+    r.raise_for_status()
     return s
 
 
 def _nse_symbol(symbol: str) -> str:
-    return str(symbol).removesuffix(".NS")
+    return str(symbol).removesuffix(".NS").upper()
 
 
 def _amount(text: str) -> float | None:
-    # Handles Re 0.50, Rs 5, Rs. 5, INR 5 and similar NSE PURPOSE text.
     m = re.search(r"(?:Rs\.?|Re\.?|INR)\s*([0-9]+(?:\.[0-9]+)?)", str(text), re.I)
     return float(m.group(1)) if m else None
 
 
+def _parse_nse_date(value):
+    if value is None or pd.isna(value):
+        return pd.NaT
+    text = str(value).strip()
+    for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
+        try:
+            return pd.Timestamp.strptime(text, fmt)
+        except (ValueError, TypeError):
+            pass
+    return pd.to_datetime(text, errors="coerce", dayfirst=True)
+
+
 def nifty500_universe() -> pd.DataFrame:
-    """Return the current Nifty 500 universe and latest NSE prices."""
     s = _nse_session()
     url = "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20500"
     r = s.get(url, timeout=30)
@@ -63,69 +73,54 @@ def nifty500_universe() -> pd.DataFrame:
     return result
 
 
-def _nse_all_corporate_actions() -> pd.DataFrame:
-    """Fetch NSE's current equity corporate-action CSV in one request."""
+def _nse_corporate_actions(from_date: pd.Timestamp, to_date: pd.Timestamp) -> list[dict]:
+    """Use NSE's JSON API; the response fields are symbol/subject/exDate/recDate."""
     s = _nse_session()
-    url = "https://www.nseindia.com/api/corporates-corporateActions?index=equities&csv=true"
+    from_s = from_date.strftime("%d-%m-%Y")
+    to_s = to_date.strftime("%d-%m-%Y")
+    url = (
+        "https://www.nseindia.com/api/corporates-corporateActions"
+        f"?index=equities&from_date={from_s}&to_date={to_s}"
+    )
     r = s.get(url, timeout=60)
     r.raise_for_status()
-    text = r.content.decode("utf-8-sig", errors="replace")
-    df = pd.read_csv(io.StringIO(text))
-    # NSE uses both spaces and hyphens in column labels (for example EX-DATE).
-    # Normalize both so the parser does not silently fail on a valid feed.
-    df.columns = [
-        re.sub(r"[^A-Z0-9]+", "_", str(c).strip().upper()).strip("_")
-        for c in df.columns
-    ]
-    return df
+    payload = r.json()
+    if not isinstance(payload, list):
+        raise RuntimeError(f"Unexpected NSE corporate-actions response: {type(payload).__name__}")
+    return payload
 
 
 def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str, float] | None = None) -> pd.DataFrame:
     """Build an upcoming dividend calendar for the configured portfolio."""
     today = pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None).normalize()
+    # Look sufficiently ahead to catch declared dividends before their ex-date.
+    end = today + pd.Timedelta(days=120)
     prices = prices or {}
-
     portfolio_symbols = {_nse_symbol(x) for x in stocks["symbol"].astype(str)}
     stock_meta = stocks.set_index("symbol").to_dict("index")
 
-    actions = _nse_all_corporate_actions()
-    required = {"SYMBOL", "PURPOSE", "EX_DATE"}
-    if not required.issubset(actions.columns):
-        raise RuntimeError(
-            f"NSE corporate-action feed missing columns: {required - set(actions.columns)}; "
-            f"received={list(actions.columns)}"
-        )
-
-    actions = actions[
-        actions["PURPOSE"].astype(str).str.contains("DIVIDEND", case=False, na=False)
-    ].copy()
-    actions["ex_date"] = pd.to_datetime(
-        actions["EX_DATE"], errors="coerce", dayfirst=True
-    )
-    record_col = "RECORD_DATE" if "RECORD_DATE" in actions.columns else None
-    actions["record_date"] = (
-        pd.to_datetime(actions[record_col], errors="coerce", dayfirst=True)
-        if record_col
-        else pd.NaT
-    )
-    actions["dividend_per_share"] = actions["PURPOSE"].map(_amount)
-    actions = actions[
-        actions["ex_date"].notna() & (actions["ex_date"] >= today)
-    ]
-    actions = actions[
-        actions["SYMBOL"].astype(str).str.strip().isin(portfolio_symbols)
-    ]
-
+    actions = _nse_corporate_actions(today, end)
     rows = []
-    for r in actions.to_dict("records"):
-        nse_symbol = str(r["SYMBOL"]).strip()
+    for action in actions:
+        nse_symbol = _nse_symbol(action.get("symbol", ""))
+        subject = str(action.get("subject", ""))
+        if nse_symbol not in portfolio_symbols or "DIVIDEND" not in subject.upper():
+            continue
+
+        ex = _parse_nse_date(action.get("exDate"))
+        if pd.isna(ex) or ex.normalize() < today:
+            continue
+
+        record = _parse_nse_date(action.get("recDate"))
+        if pd.isna(record):
+            record = ex
+
+        div = _amount(subject)
         symbol = f"{nse_symbol}.NS"
         meta = stock_meta.get(symbol, {})
-        ex = r["ex_date"]
-        record = r["record_date"] if pd.notna(r["record_date"]) else ex
-        buy_by = ex - pd.offsets.BDay(1)
         price = prices.get(symbol)
-        div = r.get("dividend_per_share")
+        buy_by = ex - pd.offsets.BDay(1)
+
         rows.append({
             "symbol": symbol,
             "name": meta.get("name", nse_symbol),
@@ -133,16 +128,16 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str, float] | No
             "dividend_per_share": div,
             "announcement_date": pd.NA,
             "ex_date": ex.date().isoformat(),
-            "record_date": record.date().isoformat() if pd.notna(record) else pd.NA,
+            "record_date": record.date().isoformat(),
             "cum_date": buy_by.date().isoformat(),
             "current_price": price,
             "dividend_yield": (
                 float(div) / float(price)
-                if pd.notna(div) and price and float(price) > 0
+                if div is not None and price and float(price) > 0
                 else pd.NA
             ),
             "status": "UPCOMING",
-            "source": "NSE corporate actions",
+            "source": "NSE corporate actions JSON",
         })
 
     result = pd.DataFrame(rows)
@@ -152,20 +147,20 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str, float] | No
         ).sort_values(["ex_date", "symbol"])
 
     DIVIDENDS.parent.mkdir(parents=True, exist_ok=True)
-    # Never erase a known calendar just because NSE temporarily returns no rows.
     if result.empty and DIVIDENDS.exists():
         old = pd.read_csv(DIVIDENDS)
-        if not old.empty:
-            old["ex_date"] = pd.to_datetime(old["ex_date"], errors="coerce")
-            old = old[old["ex_date"].notna() & (old["ex_date"] >= today)].copy()
-            old["ex_date"] = old["ex_date"].dt.date.astype(str)
-            return old
+        if not old.empty and "ex_date" in old.columns:
+            old["_ex"] = pd.to_datetime(old["ex_date"], errors="coerce")
+            old = old[old["_ex"].notna() & (old["_ex"] >= today)].copy()
+            old = old.drop(columns=["_ex"])
+            if not old.empty:
+                return old
+
     result.to_csv(DIVIDENDS, index=False)
     return result
 
 
 def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
-    """Keep the detailed historical capture study for configured portfolio stocks."""
     rows = []
     for stock in stocks.to_dict("records"):
         symbol = stock["symbol"]
@@ -184,7 +179,6 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
                 pos = idx.searchsorted(ex_date)
                 if pos >= len(idx) or pos == 0:
                     continue
-                ex = idx[pos]
                 pre = float(close.iloc[pos - 1])
                 ex_close = float(close.iloc[pos])
 
@@ -201,7 +195,7 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
                 rows.append({
                     "symbol": symbol,
                     "name": stock["name"],
-                    "ex_date": ex.date().isoformat(),
+                    "ex_date": idx[pos].date().isoformat(),
                     "dividend_per_share": float(div),
                     "pre_div_10d_return": float(close.iloc[pos - 1] / close.iloc[max(0, pos - 11)] - 1) if pos >= 11 else pd.NA,
                     "ex_day_return": float(ex_close / pre - 1),
@@ -225,7 +219,6 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
 
 
 def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10y") -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Backtest simple dividend-capture exits across the current Nifty 500 universe."""
     symbols = [s for s in universe["symbol"].dropna().astype(str).unique()]
     if not symbols:
         return pd.DataFrame(), pd.DataFrame()
@@ -237,7 +230,6 @@ def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10
     except Exception as exc:
         print(f"Nifty 500 dividend backtest download failed: {exc}")
         return pd.DataFrame(), pd.DataFrame()
-
     if raw.empty:
         return pd.DataFrame(), pd.DataFrame()
 
@@ -262,8 +254,7 @@ def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10
         close.index = pd.to_datetime(close.index).tz_localize(None)
         dividends.index = pd.to_datetime(dividends.index).tz_localize(None)
         dividends = dividends.reindex(close.index).fillna(0.0)
-        event_dates = dividends[dividends > 0].index
-        for ex_date in event_dates:
+        for ex_date in dividends[dividends > 0].index:
             pos = close.index.searchsorted(ex_date)
             if pos <= 0 or pos >= len(close):
                 continue
@@ -285,32 +276,25 @@ def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10
                     "ex_date": ex_date.date().isoformat(),
                     "buy_date": buy_date.date().isoformat(),
                     "buy_price": buy_price, "dividend_per_share": div,
-                    "exit_days": days,
-                    "exit_date": close.index[exit_pos].date().isoformat(),
-                    "sell_price": sell_price,
-                    "price_return": price_return,
-                    "dividend_return": dividend_return,
-                    "total_return": total_return,
+                    "exit_days": days, "exit_date": close.index[exit_pos].date().isoformat(),
+                    "sell_price": sell_price, "price_return": price_return,
+                    "dividend_return": dividend_return, "total_return": total_return,
                     "profitable": total_return > 0,
                 })
 
     result = pd.DataFrame(rows)
     if result.empty:
         return result, pd.DataFrame()
-    summary = (
-        result.groupby("exit_days", as_index=False)
-        .agg(
-            events=("total_return", "size"),
-            win_rate=("profitable", "mean"),
-            average_total_return=("total_return", "mean"),
-            median_total_return=("total_return", "median"),
-            worst_total_return=("total_return", "min"),
-            best_total_return=("total_return", "max"),
-            average_price_return=("price_return", "mean"),
-            average_dividend_return=("dividend_return", "mean"),
-        )
-        .sort_values("exit_days")
-    )
+    summary = result.groupby("exit_days", as_index=False).agg(
+        events=("total_return", "size"),
+        win_rate=("profitable", "mean"),
+        average_total_return=("total_return", "mean"),
+        median_total_return=("total_return", "median"),
+        worst_total_return=("total_return", "min"),
+        best_total_return=("total_return", "max"),
+        average_price_return=("price_return", "mean"),
+        average_dividend_return=("dividend_return", "mean"),
+    ).sort_values("exit_days")
     CAPTURE.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(CAPTURE, index=False)
     summary.to_csv(CAPTURE_SUMMARY, index=False)
