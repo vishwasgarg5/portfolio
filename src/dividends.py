@@ -290,7 +290,11 @@ def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str = "10
 def update_dividends(stocks: pd.DataFrame, prices: dict[str, float]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     upcoming = fetch_upcoming_dividends(stocks, prices)
     historical = historical_dividend_patterns(stocks)
-    universe = nifty500_universe()
-    capture, summary = nifty500_dividend_capture_backtest(universe)
-    print(f"Nifty 500 dividend capture backtest: {len(capture)} rows, {len(summary)} horizons")
+    try:
+        universe = nifty500_universe()
+        capture, summary = nifty500_dividend_capture_backtest(universe)
+        print(f"Nifty 500 dividend capture backtest: {len(capture)} rows, {len(summary)} horizons")
+    except Exception as exc:
+        print(f"Nifty 500 dividend capture backtest unavailable: {exc}")
+        capture, summary = pd.DataFrame(), pd.DataFrame()
     return upcoming, historical, summary
