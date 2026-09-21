@@ -9,8 +9,8 @@ on:
       - "scripts/**"
       - "config/**"
       - "requirements.txt"
+      - ".github/workflows/update-forecasts.yml"
   schedule:
-    # 08:30 IST (03:00 UTC), Monday-Friday, before the NSE session.
     - cron: "0 3 * * 1-5"
 
 permissions:
@@ -22,19 +22,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
       - name: Update data, forecasts and portfolio report
         run: python scripts/update_forecasts.py
-
       - name: Commit data, predictions and report
         run: |
           git config user.name "portfolio-bot"
@@ -42,14 +38,12 @@ jobs:
           git add -f data/*.csv predictions/*.csv predictions/*.md
           git diff --cached --quiet || git commit -m "chore: update portfolio forecasts and report"
           git push
-
       - name: Send Telegram portfolio report
         if: success()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/send_telegram.py
-
       - name: Send Telegram failure alert
         if: failure()
         env:
