@@ -126,7 +126,7 @@ def build_report():
             model_quality_ok=any(quality)
             trend_ok=(trend20 is None or trend20 > -0.20) and (ma20 is None or ma20 > -0.15)
             plan=build_staged_averaging_plan(qty,avg,current,fp,profit_target=profit_target,max_add_capital_ratio=MAX_STOCK_ADD_CAPITAL_RATIO,volatility=_num(r.get("atr_pct")),lower_forecasts=lower_fp) if model_quality_ok and trend_ok else None
-            if plan is not None: plan["plan_date"]=r.get("market_data_date")
+            if plan is not None: plan["plan_date"]=r.get("data_date")
             candidate_plans.append((stock["symbol"],stock["name"],plan,model_quality_ok and trend_ok))
 
             for h,p in fp.items():
