@@ -57,19 +57,19 @@ def fit_forecast(features, feature_columns, target_column, min_rows=None):
         candidate_predictions[name]=pred
         candidate_mae[name]=float(mean_absolute_error(test[target_column],pred))
 
-    # Include a zero-return baseline so a complex model is not selected when it
-    # cannot beat simply forecasting no change.
-    mean_return=float(train[target_column].median())
-    mean_pred=np.full(len(test), mean_return, dtype=float)
-    candidate_predictions["historical_median"]=mean_pred
-    candidate_mae["historical_median"]=float(mean_absolute_error(test[target_column],mean_pred))
+    # Use a horizon-specific historical median-return baseline.
+    # Unlike a zero-return baseline, this preserves differences between horizons.
+    median_return=float(train[target_column].median())
+    median_pred=np.full(len(test), median_return, dtype=float)
+    candidate_predictions["historical_median"]=median_pred
+    candidate_mae["historical_median"]=float(mean_absolute_error(test[target_column],median_pred))
     best_name=min(candidate_mae,key=candidate_mae.get)
     best_pred=candidate_predictions[best_name]
     mae=candidate_mae[best_name]
 
     latest=features.dropna(subset=feature_columns).iloc[-1]
     if best_name=="historical_median":
-        pred=mean_return
+        pred=median_return
     else:
         final_model=_model(best_name)
         final_model.fit(clean[feature_columns],clean[target_column])
