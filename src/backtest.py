@@ -11,7 +11,10 @@ def _select_model(train,feature_columns,target_column):
     for name in MODEL_NAMES:
         m=_model(name);m.fit(inner_train[feature_columns],inner_train[target_column])
         scores[name]=mean_absolute_error(inner_test[target_column],m.predict(inner_test[feature_columns]))
-    scores["zero_baseline"]=mean_absolute_error(inner_test[target_column],np.zeros(len(inner_test)))
+    median_return=float(inner_train[target_column].median())
+    scores["historical_median"]=mean_absolute_error(
+        inner_test[target_column], np.full(len(inner_test), median_return, dtype=float)
+    )
     return min(scores,key=scores.get)
 
 def walk_forward_backtest(features,feature_columns,target_column,min_train_rows=80,max_folds=20,step=21,model_name="auto"):
@@ -21,7 +24,8 @@ def walk_forward_backtest(features,feature_columns,target_column,min_train_rows=
     for origin in origins:
         train=clean.iloc[:origin];test=clean.iloc[[origin]]
         selected=_select_model(train,feature_columns,target_column) if model_name=="auto" else model_name
-        if selected=="zero_baseline":predicted=0.0
+        if selected=="historical_median":
+            predicted=float(train[target_column].median())
         else:
             model=_model(selected);model.fit(train[feature_columns],train[target_column]);predicted=float(model.predict(test[feature_columns])[0])
         actual=float(test[target_column].iloc[0]);error=actual-predicted
