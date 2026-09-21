@@ -75,6 +75,24 @@ def fit_forecast(features, feature_columns, target_column, min_rows=None):
         final_model.fit(clean[feature_columns],clean[target_column])
         pred=float(final_model.predict(latest[feature_columns].to_frame().T)[0])
 
+    # Robust horizon-specific sanity guard.
+    # Long horizons have wider return distributions, so use the distribution
+    # of this horizon rather than one global cap. This preserves 3M/6M/.../36M
+    # differences while preventing a few extreme historical observations from
+    # producing implausible current forecasts.
+    target_series=pd.to_numeric(train[target_column],errors="coerce").dropna()
+    q01=float(target_series.quantile(0.01))
+    q99=float(target_series.quantile(0.99))
+    q25=float(target_series.quantile(0.25))
+    q75=float(target_series.quantile(0.75))
+    iqr=max(q75-q25,0.01)
+    robust_low=float(target_series.median()-3.0*iqr)
+    robust_high=float(target_series.median()+3.0*iqr)
+    guard_low=max(q01,robust_low)
+    guard_high=min(q99,robust_high)
+    if guard_low<guard_high:
+        pred=float(np.clip(pred,guard_low,guard_high))
+
     residuals=test[target_column].to_numpy()-best_pred
     sigma=float(np.std(residuals,ddof=1)) if len(residuals)>1 else mae
     sigma=max(sigma,mae*0.5,0.01)
