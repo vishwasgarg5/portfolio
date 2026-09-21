@@ -10,6 +10,7 @@ from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
 from .tracking import append_forecasts, evaluate_pending, load_history_table
 from .dividends import update_dividends
+# Forecast pipeline: push-triggered runs regenerate forecasts after model changes.
 ROOT=Path(__file__).resolve().parents[1];CONFIG=ROOT/"config/stocks.csv";PREDICTIONS=ROOT/"predictions/latest.csv";BACKTEST=ROOT/"predictions/backtest.csv"
 def load_stocks(): return pd.read_csv(CONFIG)
 def run(update_data=True):
