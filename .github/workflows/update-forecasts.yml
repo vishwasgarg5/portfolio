@@ -2,6 +2,13 @@ name: Update portfolio forecasts
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "config/**"
+      - "requirements.txt"
   schedule:
     # 08:30 IST (03:00 UTC), Monday-Friday, before the NSE session.
     - cron: "0 3 * * 1-5"
