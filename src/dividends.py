@@ -32,8 +32,50 @@ def _nse_symbol(symbol: str) -> str:
     return str(symbol).removesuffix(".NS").upper()
 
 def _amount(text: str) -> float | None:
-    m = re.search(r"(?:Rs\.?|Re\.?|INR)\s*([0-9]+(?:\.[0-9]+)?)", str(text), re.I)
-    return float(m.group(1)) if m else None
+    # NSE usually returns "Dividend - Rs 5"; BSE may return
+    # "Dividend - Rs. - 5.0000". Accept both forms.
+    m = re.search(
+        r"(?:Rs\.?|Re\.?|INR)\s*[-:]?\s*([0-9]+(?:\.[0-9]+)?)",
+        str(text),
+        re.I,
+    )
+    if m:
+        return float(m.group(1))
+    return None
+
+def _bse_corporate_actions(from_date: pd.Timestamp, to_date: pd.Timestamp) -> list[dict]:
+    """Fallback for GitHub Actions/cloud IPs blocked by NSE.
+
+    BSE exposes forthcoming corporate actions through its public JSON endpoint.
+    """
+    url = "https://api.bseindia.com/BseIndiaAPI/api/DefaultData/w"
+    params = {
+        "Fdate": from_date.strftime("%Y%m%d"),
+        "TDate": to_date.strftime("%Y%m%d"),
+        "ddlcategorys": "E",
+        "ddlindustrys": "",
+        "scripcode": "",
+        "segment": "0",
+        "strSearch": "S",
+        "Purposecode": "P9",  # dividend
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://www.bseindia.com/",
+        "Origin": "https://www.bseindia.com",
+    }
+    r = requests.get(url, params=params, headers=headers, timeout=60)
+    r.raise_for_status()
+    payload = r.json()
+    if isinstance(payload, dict):
+        for key in ("Table", "data", "Data"):
+            if isinstance(payload.get(key), list):
+                return payload[key]
+        return []
+    if isinstance(payload, list):
+        return payload
+    raise RuntimeError(f"Unexpected BSE corporate-actions response: {type(payload).__name__}")
 
 def _parse_nse_date(value):
     if value is None or pd.isna(value):
@@ -78,15 +120,23 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str,float]|None=
     portfolio_symbols={_nse_symbol(x) for x in stocks["symbol"].astype(str)}
     stock_meta=stocks.set_index("symbol").to_dict("index")
     rows=[]
-    for action in _nse_corporate_actions(today,end):
-        nse_symbol=_nse_symbol(action.get("symbol",""))
-        subject=str(action.get("subject",""))
+    source_label = "NSE corporate actions JSON"
+    try:
+        actions = _nse_corporate_actions(today, end)
+    except Exception as nse_exc:
+        print(f"NSE corporate actions unavailable; using BSE fallback: {nse_exc}")
+        actions = _bse_corporate_actions(today, end)
+        source_label = "BSE corporate actions JSON fallback"
+
+    for action in actions:
+        nse_symbol = _nse_symbol(action.get("symbol") or action.get("short_name") or "")
+        subject = str(action.get("subject") or action.get("Purpose") or "")
         if nse_symbol not in portfolio_symbols or "DIVIDEND" not in subject.upper():
             continue
-        ex=_parse_nse_date(action.get("exDate"))
-        if pd.isna(ex) or ex.normalize()<today:
+        ex = _parse_nse_date(action.get("exDate") or action.get("Ex_date") or action.get("exdate"))
+        if pd.isna(ex) or ex.normalize() < today:
             continue
-        record=_parse_nse_date(action.get("recDate"))
+        record = _parse_nse_date(action.get("recDate") or action.get("RD_Date"))
         if pd.isna(record): record=ex
         div=_amount(subject)
         symbol=f"{nse_symbol}.NS"
@@ -98,7 +148,7 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str,float]|None=
             "ex_date":ex.date().isoformat(),"record_date":record.date().isoformat(),
             "cum_date":buy_by.date().isoformat(),"current_price":price,
             "dividend_yield":(float(div)/float(price) if div is not None and price and float(price)>0 else pd.NA),
-            "status":"UPCOMING","source":"NSE corporate actions JSON",
+            "status":"UPCOMING","source":source_label,
         })
     result=pd.DataFrame(rows)
     if not result.empty:
