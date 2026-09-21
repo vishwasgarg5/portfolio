@@ -90,7 +90,6 @@ def main():
         "Forecasts are model estimates, not guaranteed outcomes.",
     ]))
 
-    # Table 1: compact current portfolio
     portfolio_rows = []
     for i, (_, r) in enumerate(df.iterrows(), 1):
         portfolio_rows.append([
@@ -99,7 +98,6 @@ def main():
         ])
     send_message(token, chat_id, table_message("PORTFOLIO", ["#","Stock","Qty","Avg","Now","P/L"], portfolio_rows))
 
-    # Table 2: requested forecast horizons only.
     forecast_rows = []
     for i, (_, r) in enumerate(df.iterrows(), 1):
         forecast_rows.append([
@@ -112,7 +110,9 @@ def main():
         "N/A = no valid forecast for that horizon."
     ))
 
-    # Table 3: staged multi-entry averaging plan.
+    # User-facing averaging output: only the current actionable staged plan.
+    # averaging_learning.csv remains an internal learning/evaluation dataset and
+    # is intentionally never sent to Telegram.
     plan_path = ROOT / "predictions" / "averaging_plan.csv"
     if plan_path.exists():
         plan = pd.read_csv(plan_path)
@@ -132,64 +132,45 @@ def main():
                     signal_rows,
                     "Buy levels are conditional triggers. The model uses a staged plan and whole shares."
                 ))
-    else:
-        if AVG_SIGNALS.exists():
-            sig = pd.read_csv(AVG_SIGNALS)
-            signal_rows = []
-            for i, (_, x) in enumerate(sig.iterrows(), 1):
-                if str(x.get("signal")) != "AVERAGING PLAN":
-                    continue
-                signal_rows.append([
-                    str(i), str(x["symbol"])[:10], money(x["total_capital"]),
-                    str(x["horizon"]), str(int(float(x["total_additional_quantity"]))),
-                    money(x["final_average"]), money(x["forecast_exit_price"]),
-                    pct(x["forecast_profit_percent"])
-                ])
-            if signal_rows:
-                send_message(token, chat_id, table_message(
-                    "EARLY-PROFIT AVERAGING",
-                    ["#","Stock","Capital","Horizon","Add Qty","New Avg","Exit","Profit"],
-                    signal_rows
-                ))
-
-    # Model learning table: completed prediction-vs-actual performance.
-    if LEARNING.exists():
-        learn = pd.read_csv(LEARNING)
-        if not learn.empty:
-            rows = []
-            for i, (_, r) in enumerate(learn.iterrows(), 1):
-                rows.append([
-                    str(i), str(r["symbol"])[:10], str(r["horizon"]),
-                    str(int(float(r["completed"]))),
-                    pct(r["mae"]), pct(r["direction_accuracy"]), pct(r["bias"])
-                ])
+    elif AVG_SIGNALS.exists():
+        sig = pd.read_csv(AVG_SIGNALS)
+        signal_rows = []
+        for i, (_, x) in enumerate(sig.iterrows(), 1):
+            if str(x.get("signal")) != "AVERAGING PLAN":
+                continue
+            signal_rows.append([
+                str(i), str(x["symbol"])[:10], money(x["total_capital"]),
+                str(x["horizon"]), str(int(float(x["total_additional_quantity"]))),
+                money(x["final_average"]), money(x["forecast_exit_price"]),
+                pct(x["forecast_profit_percent"])
+            ])
+        if signal_rows:
             send_message(token, chat_id, table_message(
-                "MODEL LEARNING",
-                ["#","Stock","Horizon","Done","MAE","Direction","Bias"],
-                rows,
-                "Completed forecasts are compared with later actual prices and retained for recalibration."
+                "EARLY-PROFIT AVERAGING",
+                ["#","Stock","Capital","Horizon","Add Qty","New Avg","Exit","Profit"],
+                signal_rows
             ))
 
-    # Forecast stability table.
+    # Model learning remains available internally; it is not a user-facing
+    # Telegram table unless explicitly requested.
+    # Forecast stability is also kept user-facing because it flags meaningful
+    # changes in the current forecast.
+
     stability_rows=[]
     for i,(_,r) in enumerate(df.iterrows(),1):
         flags=[]
         for h in ("3M","6M","12M","18M","24M","36M"):
             s=str(r.get(f"{h}_prediction_stability",""))
-            if s in {"watch","large_change"}: flags.append(f"{h}:{s}")
-        if flags: stability_rows.append([str(i),str(r["symbol"])[:10]," ".join(flags)])
+            if s in {"watch","large_change"}:
+                flags.append(f"{h}:{s}")
+        if flags:
+            stability_rows.append([str(i),str(r["symbol"])[:10]," ".join(flags)])
     if stability_rows:
-        send_message(token,chat_id,table_message("FORECAST STABILITY",["#","Stock","Change"],stability_rows,"Watch = >10% change; large_change = >20% change versus previous run."))
+        send_message(token,chat_id,table_message(
+            "FORECAST STABILITY",["#","Stock","Change"],stability_rows,
+            "Watch = >10% change; large_change = >20% change versus previous run."
+        ))
 
-    if AVG_LEARNING.exists():
-        al=pd.read_csv(AVG_LEARNING)
-        if not al.empty and "reached" in al.columns:
-            rows=[]
-            for i,(_,x) in enumerate(al.drop_duplicates(["symbol","entry"]).iterrows(),1):
-                rows.append([str(i),str(x["symbol"])[:10],f'B{int(float(x["entry"]))}',"YES" if bool(x["reached"]) else "NO","YES" if bool(x["exit_reached"]) else "NO",pct(x.get("profit_vs_cumulative_average"))])
-            if rows: send_message(token,chat_id,table_message("AVERAGING LEARNING",["#","Stock","Buy","Hit","Exit","Profit"],rows,"Later market data is used to evaluate prior plan triggers."))
-
-    # Final table: upcoming dividend opportunities only.
     if DIVIDENDS.exists():
         div = pd.read_csv(DIVIDENDS)
         if not div.empty:
@@ -198,12 +179,15 @@ def main():
                 qty = df.loc[df["symbol"].eq(r["symbol"]), "quantity"]
                 held_qty = int(float(qty.iloc[0])) if not qty.empty and pd.notna(qty.iloc[0]) else 0
                 income = float(r["dividend_per_share"]) * held_qty if pd.notna(r["dividend_per_share"]) else float("nan")
-                rows.append([str(i), str(r["symbol"])[:10], str(held_qty), money(r["dividend_per_share"]),
-                             money(income), str(r["ex_date"]), str(r["cum_date"]), pct(r["dividend_yield"])])
+                rows.append([
+                    str(i), str(r["symbol"])[:10], str(held_qty), money(r["dividend_per_share"]),
+                    money(income), str(r["ex_date"]), str(r["cum_date"]), pct(r["dividend_yield"])
+                ])
             send_message(token, chat_id, table_message(
                 "DIVIDEND", ["#","Stock","Qty","Div/SH","Income","Ex-Date","Buy-By","Yield"], rows,
                 "Upcoming dividend opportunities for the configured portfolio."
             ))
+
 
 if __name__ == "__main__":
     main()
