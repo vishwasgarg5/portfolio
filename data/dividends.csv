@@ -1,0 +1,2 @@
+symbol,name,universe,dividend_per_share,announcement_date,ex_date,record_date,cum_date,current_price,dividend_yield,status,source
+IRCTC.NS,IRCTC,PORTFOLIO,0.5,,2026-09-22,2026-09-22,2026-09-21,473.5,0.0010559662090813093,UPCOMING,BSE corporate actions JSON fallback
