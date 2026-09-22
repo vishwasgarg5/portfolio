@@ -18,6 +18,14 @@ DIV_HISTORY=ROOT/"predictions/dividend_history.csv"
 def _num(v):
     return float(v) if pd.notna(v) else None
 
+def _read_csv_safe(path):
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
 def _horizon_label(row, h):
     status=str(row.get(f"{h}_status",""))
     price=_num(row.get(f"{h}_predicted_price"))
@@ -29,8 +37,8 @@ def build_report():
     stocks=pd.read_csv(CONFIG)
     forecasts=pd.read_csv(PREDICTIONS) if PREDICTIONS.exists() else pd.DataFrame()
     history=load_history_table()
-    divs=pd.read_csv(DIVIDENDS) if DIVIDENDS.exists() else pd.DataFrame()
-    divhist=pd.read_csv(DIV_HISTORY) if DIV_HISTORY.exists() else pd.DataFrame()
+    divs=_read_csv_safe(DIVIDENDS)
+    divhist=_read_csv_safe(DIV_HISTORY)
     rows=[]
     avg_rows=[]
     signal_rows=[]
