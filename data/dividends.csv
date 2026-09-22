@@ -1,2 +1,12 @@
 symbol,name,universe,dividend_per_share,announcement_date,ex_date,record_date,cum_date,current_price,dividend_yield,status,source
-IRCTC.NS,IRCTC,PORTFOLIO,0.5,,2026-09-22,2026-09-22,2026-09-21,473.5,0.0010559662090813093,UPCOMING,BSE corporate actions JSON fallback
+BEML.NS,BEML Ltd.,NIFTY 500,12.28,,2026-09-22,2026-09-22,2026-09-21,,,UPCOMING,BSE corporate actions JSON fallback
+HFCL.NS,HFCL Ltd.,NIFTY 500,0.2,,2026-09-22,2026-09-22,2026-09-21,,,UPCOMING,BSE corporate actions JSON fallback
+IRCTC.NS,Indian Railway Catering And Tourism Corporation Ltd.,NIFTY 500,0.5,,2026-09-22,2026-09-22,2026-09-21,470.20001220703125,0.001063377258654446,UPCOMING,BSE corporate actions JSON fallback
+NLCINDIA.NS,NLC India Ltd.,NIFTY 500,0.25,,2026-09-22,2026-09-22,2026-09-21,,,UPCOMING,BSE corporate actions JSON fallback
+GALLANTT.NS,Gallantt Ispat Ltd.,NIFTY 500,2.0,,2026-09-23,2026-09-23,2026-09-22,,,UPCOMING,BSE corporate actions JSON fallback
+GMDCLTD.NS,Gujarat Mineral Development Corporation Ltd.,NIFTY 500,9.5,,2026-09-23,2026-09-23,2026-09-22,,,UPCOMING,BSE corporate actions JSON fallback
+TITAGARH.NS,Titagarh Rail Systems Ltd.,NIFTY 500,1.0,,2026-09-23,2026-09-23,2026-09-22,,,UPCOMING,BSE corporate actions JSON fallback
+ENGINERSIN.NS,Engineers India Ltd.,NIFTY 500,2.5,,2026-09-24,2026-09-24,2026-09-23,,,UPCOMING,BSE corporate actions JSON fallback
+SAIL.NS,Steel Authority of India Ltd.,NIFTY 500,2.35,,2026-09-30,2026-09-30,2026-09-29,,,UPCOMING,BSE corporate actions JSON fallback
+IGL.NS,Indraprastha Gas Ltd.,NIFTY 500,1.5,,2026-10-01,2026-10-01,2026-09-30,,,UPCOMING,BSE corporate actions JSON fallback
+NMDC.NS,NMDC Ltd.,NIFTY 500,1.0,,2026-10-05,2026-10-05,2026-10-02,,,UPCOMING,BSE corporate actions JSON fallback
