@@ -170,10 +170,15 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
         try:
             tk=yf.Ticker(symbol); divs=tk.dividends
             if divs is None or divs.empty: continue
-            divs.index=pd.to_datetime(divs.index).tz_localize(None)
+            divs.index=pd.to_datetime(divs.index)
+            if getattr(divs.index, "tz", None) is not None:
+                divs.index=divs.index.tz_localize(None)
             prices=tk.history(period="10y",auto_adjust=False,actions=False)
             if prices.empty: continue
-            close=prices["Close"].dropna(); idx=close.index
+            close=prices["Close"].dropna(); idx=pd.to_datetime(close.index)
+            if getattr(idx, "tz", None) is not None:
+                idx=idx.tz_localize(None)
+            close.index=idx
             for ex_date,div in divs.items():
                 pos=idx.searchsorted(ex_date)
                 if pos>=len(idx) or pos==0: continue
@@ -192,8 +197,15 @@ def historical_dividend_patterns(stocks: pd.DataFrame) -> pd.DataFrame:
         except Exception as exc:
             print(f"Historical dividend analysis failed for {symbol}: {exc}")
     result=pd.DataFrame(rows)
-    if not result.empty: result.to_csv(HISTORICAL,index=False)
-    elif not HISTORICAL.exists(): pd.DataFrame().to_csv(HISTORICAL,index=False)
+    historical_columns=[
+        "symbol","name","ex_date","dividend_per_share","pre_div_10d_return",
+        "ex_day_return","post_3d_return","post_5d_return","post_10d_return",
+        "post_20d_return","recovery_days","dividend_yield_on_pre_close",
+        "total_return_5d_including_dividend",
+    ]
+    if result.empty:
+        result=pd.DataFrame(columns=historical_columns)
+    result.to_csv(HISTORICAL,index=False)
     return result
 
 def nifty500_dividend_capture_backtest(universe: pd.DataFrame, period: str="10y") -> tuple[pd.DataFrame,pd.DataFrame]:
