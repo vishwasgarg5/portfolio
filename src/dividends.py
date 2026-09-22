@@ -89,18 +89,45 @@ def _parse_nse_date(value):
     return pd.to_datetime(text, errors="coerce", dayfirst=True)
 
 def nifty500_universe() -> pd.DataFrame:
-    s = _nse_session()
-    r = s.get("https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20500", timeout=30)
-    r.raise_for_status()
-    rows = []
-    for item in r.json().get("data", []):
-        symbol = str(item.get("symbol", "")).strip()
-        if symbol and symbol != "NIFTY 500":
-            rows.append({"symbol":f"{symbol}.NS","nse_symbol":symbol,"name":item.get("meta",{}).get("companyName") or symbol,"current_price":item.get("lastPrice")})
-    result = pd.DataFrame(rows).drop_duplicates("symbol")
-    if result.empty:
-        raise RuntimeError("NSE returned an empty Nifty 500 universe")
-    return result
+    """Load current Nifty 500 constituents, with an NSE API fallback."""
+    csv_url = "https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv"
+    headers = {"User-Agent": NSE_HEADERS["User-Agent"], "Referer": "https://www.niftyindices.com/"}
+    try:
+        r = requests.get(csv_url, headers=headers, timeout=30)
+        r.raise_for_status()
+        df = pd.read_csv(pd.io.common.BytesIO(r.content))
+        cols = {str(c).strip().lower(): c for c in df.columns}
+        sym_col = cols.get("symbol")
+        name_col = cols.get("company name") or cols.get("company_name")
+        if sym_col is None:
+            raise RuntimeError("Nifty 500 constituent CSV has no SYMBOL column")
+        rows = []
+        for _, item in df.iterrows():
+            symbol = str(item.get(sym_col, "")).strip().upper()
+            if symbol and symbol != "NIFTY 500":
+                rows.append({"symbol": f"{symbol}.NS", "nse_symbol": symbol,
+                             "name": str(item.get(name_col, symbol)).strip() if name_col else symbol,
+                             "current_price": pd.NA})
+        result = pd.DataFrame(rows).drop_duplicates("symbol")
+        if len(result) >= 450:
+            return result
+        raise RuntimeError(f"Nifty 500 CSV returned only {len(result)} constituents")
+    except Exception as csv_exc:
+        print(f"Nifty 500 constituent CSV unavailable; trying NSE API: {csv_exc}")
+        s = _nse_session()
+        r = s.get("https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20500", timeout=30)
+        r.raise_for_status()
+        rows = []
+        for item in r.json().get("data", []):
+            symbol = str(item.get("symbol", "")).strip()
+            if symbol and symbol != "NIFTY 500":
+                rows.append({"symbol": f"{symbol}.NS", "nse_symbol": symbol,
+                             "name": item.get("meta", {}).get("companyName") or symbol,
+                             "current_price": item.get("lastPrice")})
+        result = pd.DataFrame(rows).drop_duplicates("symbol")
+        if result.empty:
+            raise RuntimeError("NSE returned an empty Nifty 500 universe")
+        return result
 
 def _nse_corporate_actions(from_date: pd.Timestamp, to_date: pd.Timestamp) -> list[dict]:
     s = _nse_session()
@@ -117,8 +144,10 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str,float]|None=
     today=pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None).normalize()
     end=today+pd.Timedelta(days=120)
     prices=prices or {}
-    portfolio_symbols={_nse_symbol(x) for x in stocks["symbol"].astype(str)}
-    stock_meta=stocks.set_index("symbol").to_dict("index")
+    # Dividend monitoring is market-wide for the Nifty 500, not portfolio-only.
+    nifty500 = nifty500_universe()
+    portfolio_symbols={_nse_symbol(x) for x in nifty500["symbol"].astype(str)}
+    stock_meta=nifty500.set_index("symbol").to_dict("index")
     rows=[]
     source_label = "NSE corporate actions JSON"
     try:
@@ -144,7 +173,7 @@ def fetch_upcoming_dividends(stocks: pd.DataFrame, prices: dict[str,float]|None=
         buy_by=ex-pd.offsets.BDay(1)
         rows.append({
             "symbol":symbol,"name":stock_meta.get(symbol,{}).get("name",nse_symbol),
-            "universe":"PORTFOLIO","dividend_per_share":div,"announcement_date":pd.NA,
+            "universe":"NIFTY 500","dividend_per_share":div,"announcement_date":pd.NA,
             "ex_date":ex.date().isoformat(),"record_date":record.date().isoformat(),
             "cum_date":buy_by.date().isoformat(),"current_price":price,
             "dividend_yield":(float(div)/float(price) if div is not None and price and float(price)>0 else pd.NA),
