@@ -30,7 +30,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt pytest
 
       - name: Check stored prediction data
         id: stored
@@ -43,6 +43,12 @@ jobs:
             echo "available=false" >> "$GITHUB_OUTPUT"
             echo "Stored prediction/report data not found."
           fi
+
+      - name: Run model tests
+        if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
+        env:
+          PYTHONPATH: .
+        run: pytest -q
 
       - name: Update data, forecasts and portfolio report
         if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
@@ -58,24 +64,66 @@ jobs:
           git push
 
       - name: Send Telegram portfolio report
+        id: telegram
         if: success()
+        continue-on-error: true
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/send_telegram.py
 
-      - name: Send Telegram failure alert
-        if: failure()
+      - name: Send Telegram delivery alert
+        if: steps.telegram.outcome == 'failure'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python - <<'PY'
           import os, urllib.parse, urllib.request
-          token=os.environ.get("TELEGRAM_BOT_TOKEN"); chat=os.environ.get("TELEGRAM_CHAT_ID")
+          token=os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat=os.environ.get("TELEGRAM_CHAT_ID")
           if token and chat:
-              data=urllib.parse.urlencode({"chat_id":chat,"text":"⚠️ <b>PORTFOLIO WORKFLOW FAILED</b>\nCheck the latest GitHub Actions run for the failed step.","parse_mode":"HTML"}).encode()
-              urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",data=data,method="POST"),timeout=30).read()
+              data=urllib.parse.urlencode({
+                  "chat_id": chat,
+                  "text": "⚠️ <b>TELEGRAM DELIVERY FAILED</b>\nForecast/report data completed successfully. Check the Telegram step in GitHub Actions.",
+                  "parse_mode": "HTML",
+              }).encode()
+              urllib.request.urlopen(
+                  urllib.request.Request(
+                      f"https://api.telegram.org/bot{token}/sendMessage",
+                      data=data,
+                      method="POST",
+                  ),
+                  timeout=30,
+              ).read()
           else:
-              print("Telegram failure alert skipped: missing secrets")
+              print("Telegram delivery alert skipped: missing secrets")
+          PY
+
+      - name: Send workflow failure alert
+        if: failure() && steps.telegram.outcome != 'failure'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os, urllib.parse, urllib.request
+          token=os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat=os.environ.get("TELEGRAM_CHAT_ID")
+          if token and chat:
+              data=urllib.parse.urlencode({
+                  "chat_id": chat,
+                  "text": "⚠️ <b>PORTFOLIO WORKFLOW FAILED</b>\nCheck the latest GitHub Actions run for the failed step.",
+                  "parse_mode": "HTML",
+              }).encode()
+              urllib.request.urlopen(
+                  urllib.request.Request(
+                      f"https://api.telegram.org/bot{token}/sendMessage",
+                      data=data,
+                      method="POST",
+                  ),
+                  timeout=30,
+              ).read()
+          else:
+              print("Workflow failure alert skipped: missing secrets")
           PY
