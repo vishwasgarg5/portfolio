@@ -10,6 +10,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "predictions" / "portfolio_report.csv"
 DIVIDENDS = ROOT / "data" / "dividends.csv"
+MAX_TELEGRAM_CHARS = 3900
 
 
 def money(v):
@@ -28,7 +29,9 @@ def pct(v):
 def send_message(token: str, chat_id: str, text: str) -> None:
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = urllib.parse.urlencode({
-        "chat_id": chat_id, "text": text, "parse_mode": "HTML",
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML",
         "disable_web_page_preview": "true",
     }).encode()
     req = urllib.request.Request(url, data=data, method="POST")
@@ -37,18 +40,42 @@ def send_message(token: str, chat_id: str, text: str) -> None:
             raise RuntimeError(f"Telegram API returned HTTP {response.status}")
 
 
-def table_message(title, headers, rows):
-    # Compact fixed-width tables designed for Telegram mobile portrait view.
+def table_messages(title, headers, rows, max_chars=MAX_TELEGRAM_CHARS):
+    """Build one or more row-safe Telegram messages below the API limit."""
     widths = [len(str(h)) for h in headers]
     for row in rows:
         widths = [max(w, len(str(v))) for w, v in zip(widths, row)]
-    lines = [f"📊 <b>{title}</b>", "<pre>"]
-    lines.append(" ".join(str(h).ljust(widths[i]) for i, h in enumerate(headers)))
-    lines.append(" ".join("-" * w for w in widths))
+
+    header = " ".join(str(h).ljust(widths[i]) for i, h in enumerate(headers))
+    separator = " ".join("-" * w for w in widths)
+
+    def row_text(row):
+        return " ".join(str(v).ljust(widths[i]) for i, v in enumerate(row))
+
+    messages = []
+    current = [f"📊 <b>{title}</b>", "<pre>", header, separator]
+    current_len = sum(len(x) + 1 for x in current) + len("</pre>")
+
     for row in rows:
-        lines.append(" ".join(str(v).ljust(widths[i]) for i, v in enumerate(row)))
-    lines.append("</pre>")
-    return "\n".join(lines)
+        line = row_text(row)
+        # Keep every row intact; split only between rows.
+        added = len(line) + 1
+        if len(current) > 3 and current_len + added + len("</pre>") > max_chars:
+            current.append("</pre>")
+            messages.append("\n".join(current))
+            current = [f"📊 <b>{title}</b>", "<pre>", header, separator]
+            current_len = sum(len(x) + 1 for x in current) + len("</pre>")
+        current.append(line)
+        current_len += added
+
+    current.append("</pre>")
+    messages.append("\n".join(current))
+    return messages
+
+
+def send_table(token, chat_id, title, headers, rows):
+    for message in table_messages(title, headers, rows):
+        send_message(token, chat_id, message)
 
 
 def main():
@@ -81,7 +108,6 @@ def main():
         f"P/L       <b>{money(pl)}  {pct(ret)}</b>",
     ]))
 
-    # Compact portfolio table.
     rows = []
     for i, (_, r) in enumerate(df.iterrows(), 1):
         rows.append([
@@ -90,11 +116,9 @@ def main():
             money(r["purchase_price"]), money(r["current_price"]),
             pct(r["current_return"]),
         ])
-    send_message(token, chat_id, table_message(
-        "PORTFOLIO", ["#","Stock","Qty","Avg","Now","P/L"], rows
-    ))
+    send_table(token, chat_id, "PORTFOLIO",
+               ["#","Stock","Qty","Avg","Now","P/L"], rows)
 
-    # Forecasts split into two mobile-width tables rather than one very wide table.
     for title, horizons in [
         ("FORECAST | 3–12M", ("3M", "6M", "9M", "12M")),
         ("FORECAST | 18–36M", ("18M", "24M", "36M")),
@@ -109,11 +133,8 @@ def main():
                     for h in horizons
                 ],
             ])
-        send_message(token, chat_id, table_message(
-            title, ["#","Stock",*horizons], rows
-        ))
+        send_table(token, chat_id, title, ["#","Stock",*horizons], rows)
 
-    # Only current actionable averaging stages; learning files stay internal.
     plan_path = ROOT / "predictions" / "averaging_plan.csv"
     if plan_path.exists():
         plan = pd.read_csv(plan_path)
@@ -128,13 +149,9 @@ def main():
                     str(x["horizon"]), pct(x["forecast_profit_percent"]),
                 ])
             if rows:
-                send_message(token, chat_id, table_message(
-                    "AVERAGING | ACTION PLAN",
-                    ["#","Stock","Buy","Price","Add","New Avg","Exit","Profit"],
-                    rows
-                ))
+                send_table(token, chat_id, "AVERAGING | ACTION PLAN",
+                           ["#","Stock","Buy","Price","Add","New Avg","Exit","Profit"], rows)
 
-    # Show only stocks whose forecast changed materially.
     stability_rows = []
     for i, (_, r) in enumerate(df.iterrows(), 1):
         flags = []
@@ -144,22 +161,21 @@ def main():
                 flags.append(f"{h}:{s}")
         if flags:
             stability_rows.append([
-                str(i), str(r["symbol"]).replace(".NS", "")[:8],
-                " ".join(flags)
+                str(i), str(r["symbol"]).replace(".NS", "")[:8], " ".join(flags)
             ])
     if stability_rows:
-        send_message(token, chat_id, table_message(
-            "FORECAST | CHANGES", ["#","Stock","Change"], stability_rows
-        ))
+        send_table(token, chat_id, "FORECAST | CHANGES",
+                   ["#","Stock","Change"], stability_rows)
 
-    # Dividend monitoring is market-wide Nifty 500. Keep this table compact.
     rows = []
     if DIVIDENDS.exists():
         div = pd.read_csv(DIVIDENDS)
         if not div.empty and "ex_date" in div.columns:
             div["_ex_date"] = pd.to_datetime(div["ex_date"], errors="coerce")
             today = pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None).normalize()
-            div = div[div["_ex_date"].notna() & (div["_ex_date"] >= today)].sort_values("_ex_date")
+            div = div[
+                div["_ex_date"].notna() & (div["_ex_date"] >= today)
+            ].sort_values(["_ex_date", "symbol"] if "symbol" in div.columns else "_ex_date")
             for i, (_, r) in enumerate(div.iterrows(), 1):
                 rows.append([
                     str(i), str(r.get("symbol", "")).replace(".NS", "")[:8],
@@ -170,16 +186,12 @@ def main():
                 ])
 
     if rows:
-        send_message(token, chat_id, table_message(
-            "DIVIDEND | NIFTY 500",
-            ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"], rows
-        ))
+        send_table(token, chat_id, "DIVIDEND | NIFTY 500",
+                   ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"], rows)
     else:
-        send_message(token, chat_id, table_message(
-            "DIVIDEND | NIFTY 500",
-            ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"],
-            [["-","NONE","-","-","-","-"]]
-        ))
+        send_table(token, chat_id, "DIVIDEND | NIFTY 500",
+                   ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"],
+                   [["-","NONE","-","-","-","-"]])
 
 
 if __name__ == "__main__":
