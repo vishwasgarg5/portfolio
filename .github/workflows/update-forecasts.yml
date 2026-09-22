@@ -22,28 +22,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Check stored prediction data
+        id: stored
+        shell: bash
+        run: |
+          if [ -s predictions/portfolio_report.csv ] && [ -s predictions/latest.csv ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "Stored prediction/report data found."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Stored prediction/report data not found."
+          fi
+
       - name: Update data, forecasts and portfolio report
+        if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
         run: python scripts/update_forecasts.py
+
       - name: Commit data, predictions and report
+        if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
         run: |
           git config user.name "portfolio-bot"
           git config user.email "actions@users.noreply.github.com"
           git add -f data/*.csv predictions/*.csv predictions/*.md
           git diff --cached --quiet || git commit -m "chore: update portfolio forecasts and report"
           git push
+
       - name: Send Telegram portfolio report
         if: success()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/send_telegram.py
+
       - name: Send Telegram failure alert
         if: failure()
         env:
