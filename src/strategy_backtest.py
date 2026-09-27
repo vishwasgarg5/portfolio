@@ -123,12 +123,13 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
 
     # An origin only needs enough labelled history for the selected horizon;
     # it does not need the horizon's target to exist after the origin.
+    start_origin = min(200, max(150, len(usable) - MIN_HOLD_DAYS - max(21, step)))
     origins = list(
-        range(200, len(usable) - MIN_HOLD_DAYS, max(21, step))
+        range(start_origin, len(usable) - MIN_HOLD_DAYS, max(21, step))
     )[-max_folds:]
     results = []
     diagnostics = {"origins": len(origins), "forecast_successes": 0,
-                   "no_forecast": 0, "plans": 0, "no_plan": 0}
+                   "no_forecast": 0, "plans": 0, "no_plan": 0, "fit_errors": 0}
 
     for origin in origins:
         date = usable.index[origin]
@@ -149,6 +150,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
                     train_slice, FEATURE_COLUMNS, f"target_{h}"
                 )
             except Exception:
+                diagnostics["fit_errors"] += 1
                 continue
             forecasts[h] = float(result.predicted_price)
             lowers[h] = max(
@@ -212,6 +214,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             "entries_reached": sim["entries_reached"],
             "max_holding_days": sim["max_holding_days"],
         })
+    print(f"Backtest {symbol}: {diagnostics}, rows={len(results)}")
     return results
 
 
