@@ -32,9 +32,12 @@ def _trend_state(prices, date):
 
 
 def _adaptive_target(final_average, forecast_exit_price):
-    average=float(final_average); forecast=float(forecast_exit_price)
-    minimum=average*(1.0+MIN_TARGET_PROFIT)
-    midpoint=average+ADAPTIVE_TARGET_FRACTION*(forecast-average)
+    average = float(final_average)
+    forecast = float(forecast_exit_price)
+    minimum = average * (1.0 + MIN_TARGET_PROFIT)
+    if forecast < minimum:
+        return forecast
+    midpoint = average + ADAPTIVE_TARGET_FRACTION * (forecast - average)
     return max(minimum, min(forecast, midpoint))
 
 
@@ -190,7 +193,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
         if trend == "deteriorating":
             diagnostics["trend_blocked"] += 1
             results.append({
-                "version": VERSION, "version": VERSION, "symbol": symbol, "name": name,
+                "version": VERSION, "symbol": symbol, "name": name,
                 "plan_date": date.date().isoformat(), "decision": "trend_blocked",
                 "trend_state": trend, "horizon": "", "forecast_exit_price": np.nan,
                 "adaptive_target_price": np.nan, "final_average": np.nan,
@@ -277,6 +280,9 @@ def run():
             })
 
     df = pd.DataFrame(rows)
+    # Normalize the schema so every outcome, including no-plan/error rows, is explicitly V6.
+    if not df.empty:
+        df["version"] = VERSION
     OUT.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUT, index=False)
     return df
