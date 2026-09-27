@@ -7,80 +7,106 @@ from .averaging import build_staged_averaging_plan
 from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
 
+STOP_LOSS_PCT = 0.15
+DETERIORATION_DAYS = 3
+MAX_HOLD_MULTIPLIER = 1.50
+MIN_HOLD_DAYS = 60
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "predictions" / "strategy_backtest.csv"
 
 
 def _simulate_plan(prices, plan_date, plan):
-    """Simulate entries/exits strictly after the forecast decision date."""
+    """V5 out-of-sample simulation: next-day entries, partial fills, risk exits and timeout."""
     if plan is None:
         return None
-
     prices = prices.sort_index()
-    future = prices.loc[prices.index > pd.Timestamp(plan_date)]
+    future = prices.loc[prices.index > pd.Timestamp(plan_date)].copy()
     rows = plan["rows"]
+    horizon_days = HORIZONS.get(plan.get("horizon"), 252)
+    max_holding_days = max(MIN_HOLD_DAYS, int(horizon_days * MAX_HOLD_MULTIPLIER))
     if future.empty:
-        return {
-            "all_entries_reached": False, "exit_reached": False,
-            "exit_date": "", "actual_exit_price": np.nan,
-            "profit_percent": np.nan,
-            "capital_deployed": 0.0, "entries_reached": 0,
-            "max_holding_days": np.nan,
-        }
+        return {"all_entries_reached": False, "exit_reached": False,
+                "partial_exit_reached": False, "exit_type": "no_future_data",
+                "exit_date": "", "actual_exit_price": np.nan,
+                "profit_percent": np.nan, "partial_profit_percent": np.nan,
+                "capital_deployed": 0.0, "entries_reached": 0, "max_holding_days": np.nan}
 
     reached = []
     for r in rows:
         hits = future.index[future["Low"] <= float(r["buy_price"])]
         reached.append(hits[0] if len(hits) else None)
 
-    reached_count = sum(x is not None for x in reached)
-    capital_deployed = sum(
-        float(rows[i]["capital"]) for i in range(reached_count)
-    )
+    existing_qty = float(plan["existing_qty"])
+    existing_avg = float(plan["existing_avg"])
+    reached_count = 0
+    capital_deployed = 0.0
+    cumulative_qty = 0.0
+    cumulative_capital = 0.0
+    deterioration_streak = 0
+    ma20 = prices["Close"].rolling(20, min_periods=20).mean()
+    ma50 = prices["Close"].rolling(50, min_periods=50).mean()
 
-    if any(x is None for x in reached):
-        return {
-            "all_entries_reached": False, "exit_reached": False,
+    for date, bar in future.iterrows():
+        days = (pd.Timestamp(date) - pd.Timestamp(plan_date)).days
+        if days > max_holding_days:
+            break
+
+        for i, hit_date in enumerate(reached):
+            if hit_date is not None and hit_date <= date and i + 1 > reached_count:
+                reached_count = i + 1
+                cumulative_qty += float(rows[i]["additional_quantity"])
+                cumulative_capital += float(rows[i]["capital"])
+                capital_deployed = cumulative_capital
+
+        if reached_count == 0:
+            continue
+
+        avg = (existing_qty * existing_avg + cumulative_capital) / (existing_qty + cumulative_qty)
+        close = float(bar["Close"])
+        if pd.notna(ma20.get(date)) and pd.notna(ma50.get(date)) and close < float(ma20.get(date)) and float(ma20.get(date)) < float(ma50.get(date)):
+            deterioration_streak += 1
+        else:
+            deterioration_streak = 0
+
+        stop_price = avg * (1.0 - STOP_LOSS_PCT)
+        target_price = float(plan["forecast_exit_price"])
+
+        if float(bar["Low"]) <= stop_price:
+            profit = stop_price / avg - 1.0
+            return {"all_entries_reached": reached_count == len(rows), "exit_reached": False,
+                    "partial_exit_reached": True, "exit_type": "stop_loss",
+                    "exit_date": date.date().isoformat(), "actual_exit_price": stop_price,
+                    "profit_percent": profit if reached_count == len(rows) else np.nan,
+                    "partial_profit_percent": profit, "capital_deployed": capital_deployed,
+                    "entries_reached": reached_count, "max_holding_days": days}
+
+        if deterioration_streak >= DETERIORATION_DAYS:
+            profit = close / avg - 1.0
+            return {"all_entries_reached": reached_count == len(rows), "exit_reached": False,
+                    "partial_exit_reached": True, "exit_type": "deterioration",
+                    "exit_date": date.date().isoformat(), "actual_exit_price": close,
+                    "profit_percent": profit if reached_count == len(rows) else np.nan,
+                    "partial_profit_percent": profit, "capital_deployed": capital_deployed,
+                    "entries_reached": reached_count, "max_holding_days": days}
+
+        if float(bar["High"]) >= target_price:
+            profit = target_price / avg - 1.0
+            return {"all_entries_reached": reached_count == len(rows), "exit_reached": True,
+                    "partial_exit_reached": True, "exit_type": "target",
+                    "exit_date": date.date().isoformat(), "actual_exit_price": target_price,
+                    "profit_percent": profit if reached_count == len(rows) else np.nan,
+                    "partial_profit_percent": profit, "capital_deployed": capital_deployed,
+                    "entries_reached": reached_count, "max_holding_days": days}
+
+    full = reached_count == len(rows)
+    return {"all_entries_reached": full, "exit_reached": False,
+            "partial_exit_reached": reached_count > 0,
+            "exit_type": "timeout" if reached_count > 0 else "no_entry",
             "exit_date": "", "actual_exit_price": np.nan,
-            "profit_percent": np.nan,
-            "capital_deployed": capital_deployed,
-            "entries_reached": reached_count,
-            "max_holding_days": np.nan,
-        }
-
-    start_exit = max(reached)
-    exit_window = prices.loc[prices.index >= start_exit]
-    exits = exit_window.index[
-        exit_window["High"] >= float(plan["forecast_exit_price"])
-    ]
-    if len(exits):
-        exit_date = exits[0]
-        profit = (
-            float(plan["forecast_exit_price"])
-            / float(plan["final_average"])
-            - 1.0
-        )
-        holding_days = (
-            pd.Timestamp(exit_date) - pd.Timestamp(plan_date)
-        ).days
-        return {
-            "all_entries_reached": True, "exit_reached": True,
-            "exit_date": exit_date.date().isoformat(),
-            "actual_exit_price": float(plan["forecast_exit_price"]),
-            "profit_percent": profit,
-            "capital_deployed": capital_deployed,
-            "entries_reached": len(rows),
-            "max_holding_days": holding_days,
-        }
-
-    return {
-        "all_entries_reached": True, "exit_reached": False,
-        "exit_date": "", "actual_exit_price": np.nan,
-        "profit_percent": np.nan,
-        "capital_deployed": capital_deployed,
-        "entries_reached": len(rows),
-        "max_holding_days": np.nan,
-    }
+            "profit_percent": np.nan, "partial_profit_percent": np.nan,
+            "capital_deployed": capital_deployed, "entries_reached": reached_count,
+            "max_holding_days": max_holding_days if reached_count > 0 else np.nan}
 
 
 def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
@@ -150,7 +176,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             })
             continue
 
-        sim = _simulate_plan(prices, date, plan)
+        plan["existing_qty"] = shares\n        plan["existing_avg"] = purchase_price\n        sim = _simulate_plan(prices, date, plan)
         results.append({
             "symbol": symbol, "name": name,
             "plan_date": date.date().isoformat(),
