@@ -7,13 +7,35 @@ from .averaging import build_staged_averaging_plan
 from .features import FEATURE_COLUMNS, HORIZONS, make_features
 from .model import fit_forecast
 
+VERSION = "V6"
 STOP_LOSS_PCT = 0.15
+ADAPTIVE_TARGET_FRACTION = 0.50
+MIN_TARGET_PROFIT = 0.05
 DETERIORATION_DAYS = 3
 MAX_HOLD_MULTIPLIER = 1.50
 MIN_HOLD_DAYS = 60
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "predictions" / "strategy_backtest.csv"
+
+
+def _trend_state(prices, date):
+    close = prices["Close"]
+    ma20 = close.rolling(20, min_periods=20).mean().get(date)
+    ma50 = close.rolling(50, min_periods=50).mean().get(date)
+    current = close.get(date)
+    if not all(pd.notna(x) for x in (current, ma20, ma50)):
+        return "unknown"
+    if float(current) < float(ma20) < float(ma50): return "deteriorating"
+    if float(current) > float(ma20) > float(ma50): return "uptrend"
+    return "mixed"
+
+
+def _adaptive_target(final_average, forecast_exit_price):
+    average=float(final_average); forecast=float(forecast_exit_price)
+    minimum=average*(1.0+MIN_TARGET_PROFIT)
+    midpoint=average+ADAPTIVE_TARGET_FRACTION*(forecast-average)
+    return max(minimum, min(forecast, midpoint))
 
 
 def _simulate_plan(prices, plan_date, plan):
@@ -72,7 +94,7 @@ def _simulate_plan(prices, plan_date, plan):
             deterioration_streak = 0
 
         stop_price = avg * (1.0 - STOP_LOSS_PCT)
-        target_price = float(plan["forecast_exit_price"])
+        target_price = _adaptive_target(plan["final_average"], plan["forecast_exit_price"])
 
         if float(bar["Low"]) <= stop_price:
             profit = stop_price / avg - 1.0
@@ -129,7 +151,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
     )[-max_folds:]
     results = []
     diagnostics = {"origins": len(origins), "forecast_successes": 0,
-                   "no_forecast": 0, "plans": 0, "no_plan": 0, "fit_errors": 0}
+                   "no_forecast": 0, "plans": 0, "no_plan": 0, "trend_blocked": 0, "fit_errors": 0}
 
     for origin in origins:
         date = usable.index[origin]
@@ -163,6 +185,22 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             continue
 
         diagnostics["forecast_successes"] += 1
+
+        trend = _trend_state(prices, date)
+        if trend == "deteriorating":
+            diagnostics["trend_blocked"] += 1
+            results.append({
+                "version": VERSION, "version": VERSION, "symbol": symbol, "name": name,
+                "plan_date": date.date().isoformat(), "decision": "trend_blocked",
+                "trend_state": trend, "horizon": "", "forecast_exit_price": np.nan,
+                "adaptive_target_price": np.nan, "final_average": np.nan,
+                "capital_deployed": 0.0, "all_entries_reached": False,
+                "exit_reached": False, "exit_date": "", "actual_exit_price": np.nan,
+                "profit_percent": np.nan, "partial_profit_percent": np.nan,
+                "partial_exit_reached": False, "exit_type": "trend_blocked",
+                "entries_reached": 0, "max_holding_days": np.nan,
+            })
+            continue
 
         plan = build_staged_averaging_plan(
             shares, purchase_price, current, forecasts,
@@ -202,6 +240,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             "decision": "plan",
             "horizon": plan["horizon"],
             "forecast_exit_price": plan["forecast_exit_price"],
+            "adaptive_target_price": _adaptive_target(plan["final_average"], plan["forecast_exit_price"]),
             "final_average": plan["final_average"],
             "capital_deployed": sim["capital_deployed"],
             "all_entries_reached": sim["all_entries_reached"],
@@ -245,4 +284,4 @@ def run():
 
 if __name__ == "__main__":
     df = run()
-    print(f"Strategy backtest rows: {len(df)}")
+    print(f"Strategy {VERSION} backtest rows: {len(df)}")
