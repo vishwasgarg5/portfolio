@@ -149,8 +149,9 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
                 result = fit_forecast(
                     train_slice, FEATURE_COLUMNS, f"target_{h}"
                 )
-            except Exception:
+            except Exception as exc:
                 diagnostics["fit_errors"] += 1
+                print(f"Backtest {symbol} {h} origin={origin} fit error: {type(exc).__name__}: {exc}")
                 continue
             forecasts[h] = float(result.predicted_price)
             lowers[h] = max(
