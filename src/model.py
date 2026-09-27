@@ -99,7 +99,7 @@ def fit_forecast(features, feature_columns, target_column, min_rows=None):
     lower=pred-1.28*sigma
     upper=pred+1.28*sigma
     price=float(latest["Close"])
-    confidence="high" if len(clean)>=500 else "medium" if len(clean)>=200 else "low"
+    # Confidence must reflect both data depth and observed validation error.\n    # A long history alone must not produce HIGH confidence when the model is\n    # demonstrably inaccurate for the selected horizon.\n    if len(clean) >= 500 and mae <= 0.15:\n        confidence = "high"\n    elif len(clean) >= 200 and mae <= 0.20:\n        confidence = "medium"\n    else:\n        confidence = "low"
     return ForecastResult(
         predicted_return=pred,predicted_price=price*(1+pred),
         lower_return=lower,upper_return=upper,validation_mae=mae,
