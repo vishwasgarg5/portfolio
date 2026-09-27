@@ -54,6 +54,9 @@ jobs:
         if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
         run: python scripts/update_forecasts.py
 
+      - name: Run historical strategy backtest
+        run: python -m src.strategy_backtest
+
       - name: Commit data, predictions and report
         if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
         run: |
