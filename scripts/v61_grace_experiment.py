@@ -1,8 +1,10 @@
 from pathlib import Path
+import sys
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 import pandas as pd
 from src.data import load_history
 from src.strategy_backtest import run_strategy_backtest, DETERIORATION_DAYS
-
 ROOT=Path(__file__).resolve().parents[1]
 stocks=pd.read_csv(ROOT/"config"/"stocks.csv")
 rows=[]
