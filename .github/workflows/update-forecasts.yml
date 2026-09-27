@@ -57,6 +57,9 @@ jobs:
       - name: Run historical strategy backtest
         run: python -m src.strategy_backtest
 
+      - name: Build historical strategy backtest report
+        run: python scripts/strategy_backtest_report.py
+
       - name: Commit data, predictions and report
         run: |
           git config user.name "portfolio-bot"
