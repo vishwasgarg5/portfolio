@@ -52,12 +52,14 @@ def _simulate_plan(prices, plan_date, plan):
         if days > max_holding_days:
             break
 
-        for i, hit_date in enumerate(reached):
-            if hit_date is not None and hit_date <= date and i + 1 > reached_count:
-                reached_count = i + 1
-                cumulative_qty += float(rows[i]["additional_quantity"])
-                cumulative_capital += float(rows[i]["capital"])
-                capital_deployed = cumulative_capital
+        filled = sum(1 for hit_date in reached if hit_date is not None and hit_date <= date)
+        if filled > reached_count:
+            for i, hit_date in enumerate(reached):
+                if hit_date is not None and hit_date <= date and i >= reached_count:
+                    cumulative_qty += float(rows[i]["additional_quantity"])
+                    cumulative_capital += float(rows[i]["capital"])
+            reached_count = filled
+            capital_deployed = cumulative_capital
 
         if reached_count == 0:
             continue
@@ -171,12 +173,15 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
                 "capital_deployed": 0.0,
                 "all_entries_reached": False, "exit_reached": False,
                 "exit_date": "", "actual_exit_price": np.nan,
-                "profit_percent": np.nan, "entries_reached": 0,
-                "max_holding_days": np.nan,
+                "profit_percent": np.nan, "partial_profit_percent": np.nan,
+                "partial_exit_reached": False, "exit_type": "no_plan",
+                "entries_reached": 0, "max_holding_days": np.nan,
             })
             continue
 
-        plan["existing_qty"] = shares\n        plan["existing_avg"] = purchase_price\n        sim = _simulate_plan(prices, date, plan)
+        plan["existing_qty"] = shares
+        plan["existing_avg"] = purchase_price
+        sim = _simulate_plan(prices, date, plan)
         results.append({
             "symbol": symbol, "name": name,
             "plan_date": date.date().isoformat(),
@@ -190,6 +195,9 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             "exit_date": sim["exit_date"],
             "actual_exit_price": sim["actual_exit_price"],
             "profit_percent": sim["profit_percent"],
+            "partial_profit_percent": sim["partial_profit_percent"],
+            "partial_exit_reached": sim["partial_exit_reached"],
+            "exit_type": sim["exit_type"],
             "entries_reached": sim["entries_reached"],
             "max_holding_days": sim["max_holding_days"],
         })
