@@ -58,7 +58,6 @@ jobs:
         run: python -m src.strategy_backtest
 
       - name: Commit data, predictions and report
-        if: github.event_name != 'workflow_dispatch' || steps.stored.outputs.available != 'true'
         run: |
           git config user.name "portfolio-bot"
           git config user.email "actions@users.noreply.github.com"
