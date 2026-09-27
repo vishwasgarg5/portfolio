@@ -41,7 +41,7 @@ def _adaptive_target(final_average, forecast_exit_price):
     return max(minimum, min(forecast, midpoint))
 
 
-def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAYS):
+def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAYS, confirmation=False):
     """V5 out-of-sample simulation: next-day entries, partial fills, risk exits and timeout."""
     if plan is None:
         return None
@@ -72,6 +72,7 @@ def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAY
     deterioration_streak = 0
     ma20 = prices["Close"].rolling(20, min_periods=20).mean()
     ma50 = prices["Close"].rolling(50, min_periods=50).mean()
+    prior_10d_low = prices["Low"].shift(1).rolling(10, min_periods=10).min()
 
     for date, bar in future.iterrows():
         days = (pd.Timestamp(date) - pd.Timestamp(plan_date)).days
@@ -108,7 +109,8 @@ def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAY
                     "partial_profit_percent": profit, "capital_deployed": capital_deployed,
                     "entries_reached": reached_count, "max_holding_days": days}
 
-        if deterioration_streak >= deterioration_days:
+        confirmed = (not confirmation) or (pd.notna(prior_10d_low.get(date)) and close < float(prior_10d_low.get(date)))
+        if deterioration_streak >= deterioration_days and confirmed:
             profit = close / avg - 1.0
             return {"all_entries_reached": reached_count == len(rows), "exit_reached": False,
                     "partial_exit_reached": True, "exit_type": "deterioration",
@@ -137,7 +139,7 @@ def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAY
 
 
 def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
-                          max_folds=8, step=63, deterioration_days=DETERIORATION_DAYS):
+                          max_folds=8, step=63, deterioration_days=DETERIORATION_DAYS, confirmation=False):
     if prices.empty or len(prices) < 260:
         return []
     prices = prices.sort_index()
@@ -236,7 +238,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
         diagnostics["plans"] += 1
         plan["existing_qty"] = shares
         plan["existing_avg"] = purchase_price
-        sim = _simulate_plan(prices, date, plan, deterioration_days=deterioration_days)
+        sim = _simulate_plan(prices, date, plan, deterioration_days=deterioration_days, confirmation=confirmation)
         results.append({
             "symbol": symbol, "name": name,
             "plan_date": date.date().isoformat(),
