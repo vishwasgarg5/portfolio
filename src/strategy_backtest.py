@@ -41,7 +41,7 @@ def _adaptive_target(final_average, forecast_exit_price):
     return max(minimum, min(forecast, midpoint))
 
 
-def _simulate_plan(prices, plan_date, plan):
+def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAYS):
     """V5 out-of-sample simulation: next-day entries, partial fills, risk exits and timeout."""
     if plan is None:
         return None
@@ -108,7 +108,7 @@ def _simulate_plan(prices, plan_date, plan):
                     "partial_profit_percent": profit, "capital_deployed": capital_deployed,
                     "entries_reached": reached_count, "max_holding_days": days}
 
-        if deterioration_streak >= DETERIORATION_DAYS:
+        if deterioration_streak >= deterioration_days:
             profit = close / avg - 1.0
             return {"all_entries_reached": reached_count == len(rows), "exit_reached": False,
                     "partial_exit_reached": True, "exit_type": "deterioration",
@@ -137,7 +137,7 @@ def _simulate_plan(prices, plan_date, plan):
 
 
 def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
-                          max_folds=8, step=63):
+                          max_folds=8, step=63, deterioration_days=DETERIORATION_DAYS):
     if prices.empty or len(prices) < 260:
         return []
     prices = prices.sort_index()
@@ -236,7 +236,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
         diagnostics["plans"] += 1
         plan["existing_qty"] = shares
         plan["existing_avg"] = purchase_price
-        sim = _simulate_plan(prices, date, plan)
+        sim = _simulate_plan(prices, date, plan, deterioration_days=deterioration_days)
         results.append({
             "symbol": symbol, "name": name,
             "plan_date": date.date().isoformat(),
