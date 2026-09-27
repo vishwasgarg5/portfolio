@@ -127,6 +127,8 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
         range(200, len(usable) - MIN_HOLD_DAYS, max(21, step))
     )[-max_folds:]
     results = []
+    diagnostics = {"origins": len(origins), "forecast_successes": 0,
+                   "no_forecast": 0, "plans": 0, "no_plan": 0}
 
     for origin in origins:
         date = usable.index[origin]
@@ -154,7 +156,10 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             )
 
         if not forecasts:
+            diagnostics["no_forecast"] += 1
             continue
+
+        diagnostics["forecast_successes"] += 1
 
         plan = build_staged_averaging_plan(
             shares, purchase_price, current, forecasts,
@@ -169,6 +174,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
         )
 
         if plan is None:
+            diagnostics["no_plan"] += 1
             results.append({
                 "symbol": symbol, "name": name,
                 "plan_date": date.date().isoformat(),
@@ -183,6 +189,7 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             })
             continue
 
+        diagnostics["plans"] += 1
         plan["existing_qty"] = shares
         plan["existing_avg"] = purchase_price
         sim = _simulate_plan(prices, date, plan)
