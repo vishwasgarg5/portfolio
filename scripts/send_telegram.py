@@ -9,8 +9,10 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "predictions" / "portfolio_report.csv"
-DIVIDENDS = ROOT / "data" / "dividends.csv"
-MAX_TELEGRAM_CHARS = 3900
+LEARNING = ROOT / "predictions" / "model_learning.csv"
+SCORECARD = ROOT / "predictions" / "model_scorecard.csv"
+BACKTEST = ROOT / "predictions" / "strategy_backtest_report.md"
+MAX_CHARS = 3900
 
 
 def money(v):
@@ -26,63 +28,35 @@ def pct(v):
     return f"{float(v) * 100:+.1f}%"
 
 
-def send_message(token: str, chat_id: str, text: str) -> None:
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+def price(v):
+    return "-" if pd.isna(v) else f"₹{float(v):,.0f}"
+
+
+def sym(v):
+    return str(v).replace(".NS", "")
+
+
+def send_message(token, chat_id, text):
+    if len(text) > MAX_CHARS:
+        raise RuntimeError(f"Telegram message exceeds {MAX_CHARS} chars: {len(text)}")
     data = urllib.parse.urlencode({
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML",
+        "chat_id": chat_id, "text": text, "parse_mode": "HTML",
         "disable_web_page_preview": "true",
     }).encode()
-    req = urllib.request.Request(url, data=data, method="POST")
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        data=data, method="POST",
+    )
     with urllib.request.urlopen(req, timeout=30) as response:
         if response.status != 200:
             raise RuntimeError(f"Telegram API returned HTTP {response.status}")
-
-
-def table_messages(title, headers, rows, max_chars=MAX_TELEGRAM_CHARS):
-    """Build one or more row-safe Telegram messages below the API limit."""
-    widths = [len(str(h)) for h in headers]
-    for row in rows:
-        widths = [max(w, len(str(v))) for w, v in zip(widths, row)]
-
-    header = " ".join(str(h).ljust(widths[i]) for i, h in enumerate(headers))
-    separator = " ".join("-" * w for w in widths)
-
-    def row_text(row):
-        return " ".join(str(v).ljust(widths[i]) for i, v in enumerate(row))
-
-    messages = []
-    current = [f"📊 <b>{title}</b>", "<pre>", header, separator]
-    current_len = sum(len(x) + 1 for x in current) + len("</pre>")
-
-    for row in rows:
-        line = row_text(row)
-        # Keep every row intact; split only between rows.
-        added = len(line) + 1
-        if len(current) > 3 and current_len + added + len("</pre>") > max_chars:
-            current.append("</pre>")
-            messages.append("\n".join(current))
-            current = [f"📊 <b>{title}</b>", "<pre>", header, separator]
-            current_len = sum(len(x) + 1 for x in current) + len("</pre>")
-        current.append(line)
-        current_len += added
-
-    current.append("</pre>")
-    messages.append("\n".join(current))
-    return messages
-
-
-def send_table(token, chat_id, title, headers, rows):
-    for message in table_messages(title, headers, rows):
-        send_message(token, chat_id, message)
 
 
 def main():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
     if not token or not chat_id:
-        raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID GitHub Actions secret.")
+        raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID.")
     if not REPORT.exists():
         raise RuntimeError(f"Missing report: {REPORT}")
 
@@ -90,108 +64,126 @@ def main():
     if df.empty:
         raise RuntimeError("Portfolio report is empty.")
 
-    date = (
-        str(pd.to_datetime(df["market_data_date"], errors="coerce").max().date())
-        if "market_data_date" in df else pd.Timestamp.utcnow().date().isoformat()
-    )
+    date = str(pd.to_datetime(df["market_data_date"], errors="coerce").max().date())
     invested = pd.to_numeric(df["invested_value"], errors="coerce").sum()
     current = pd.to_numeric(df["current_value"], errors="coerce").sum()
     pl = pd.to_numeric(df["current_profit_loss"], errors="coerce").sum()
     ret = current / invested - 1 if invested else float("nan")
 
-    send_message(token, chat_id, "\n".join([
-        "📊 <b>PORTFOLIO | DAILY</b>",
-        f"📅 {date}  •  {len(df)} holdings",
+    work = df.copy()
+    work["_ret"] = pd.to_numeric(work["current_return"], errors="coerce")
+    gainers = work.nlargest(3, "_ret")
+    losers = work.nsmallest(3, "_ret")
+
+    m1 = [
+        "📊 <b>PORTFOLIO · DAILY</b>",
+        f"📅 {date} · {len(df)} holdings",
         "",
-        f"INVESTED  <b>{money(invested)}</b>",
-        f"CURRENT   <b>{money(current)}</b>",
-        f"P/L       <b>{money(pl)}  {pct(ret)}</b>",
-    ]))
+        f"💰 Invested  <b>{money(invested)}</b>",
+        f"💼 Value     <b>{money(current)}</b>",
+        f"📈 P/L       <b>{money(pl)}  {pct(ret)}</b>",
+        "",
+        "🟢 <b>TOP GAINERS</b>",
+    ]
+    for _, r in gainers.iterrows():
+        m1.append(f"• {sym(r['symbol'])}: {pct(r['_ret'])}")
+    m1.append("🔴 <b>TOP LOSERS</b>")
+    for _, r in losers.iterrows():
+        m1.append(f"• {sym(r['symbol'])}: {pct(r['_ret'])}")
 
-    rows = []
-    for i, (_, r) in enumerate(df.iterrows(), 1):
-        rows.append([
-            str(i), str(r["symbol"]).replace(".NS", "")[:8],
-            str(int(float(r["quantity"]))),
-            money(r["purchase_price"]), money(r["current_price"]),
-            pct(r["current_return"]),
-        ])
-    send_table(token, chat_id, "PORTFOLIO",
-               ["#","Stock","Qty","Avg","Now","P/L"], rows)
-
-    for title, horizons in [
-        ("FORECAST | 3–12M", ("3M", "6M", "9M", "12M")),
-        ("FORECAST | 18–36M", ("18M", "24M", "36M")),
-    ]:
-        rows = []
-        for i, (_, r) in enumerate(df.iterrows(), 1):
-            rows.append([
-                str(i), str(r["symbol"]).replace(".NS", "")[:8],
-                *[
-                    money(r.get(f"{h}_predicted_price"))
-                    if pd.notna(r.get(f"{h}_predicted_price")) else "-"
-                    for h in horizons
-                ],
-            ])
-        send_table(token, chat_id, title, ["#","Stock",*horizons], rows)
-
-    plan_path = ROOT / "predictions" / "averaging_plan.csv"
-    if plan_path.exists():
-        plan = pd.read_csv(plan_path)
-        if not plan.empty:
-            rows = []
-            for i, (_, x) in enumerate(plan.iterrows(), 1):
-                rows.append([
-                    str(i), str(x["symbol"]).replace(".NS", "")[:8],
-                    f'B{x["entry"]}', money(x["buy_price"]),
-                    str(int(float(x["additional_quantity"]))),
-                    money(x["cumulative_average"]),
-                    str(x["horizon"]), pct(x["forecast_profit_percent"]),
-                ])
-            if rows:
-                send_table(token, chat_id, "AVERAGING | ACTION PLAN",
-                           ["#","Stock","Buy","Price","Add","New Avg","Exit","Profit"], rows)
-
-    stability_rows = []
-    for i, (_, r) in enumerate(df.iterrows(), 1):
-        flags = []
-        for h in ("3M","6M","12M","18M","24M","36M"):
-            s = str(r.get(f"{h}_prediction_stability", ""))
-            if s in {"watch", "large_change"}:
-                flags.append(f"{h}:{s}")
-        if flags:
-            stability_rows.append([
-                str(i), str(r["symbol"]).replace(".NS", "")[:8], " ".join(flags)
-            ])
-    if stability_rows:
-        send_table(token, chat_id, "FORECAST | CHANGES",
-                   ["#","Stock","Change"], stability_rows)
-
-    rows = []
-    if DIVIDENDS.exists():
-        div = pd.read_csv(DIVIDENDS)
-        if not div.empty and "ex_date" in div.columns:
-            div["_ex_date"] = pd.to_datetime(div["ex_date"], errors="coerce")
-            today = pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None).normalize()
-            div = div[
-                div["_ex_date"].notna() & (div["_ex_date"] >= today)
-            ].sort_values(["_ex_date", "symbol"] if "symbol" in div.columns else "_ex_date")
-            for i, (_, r) in enumerate(div.iterrows(), 1):
-                rows.append([
-                    str(i), str(r.get("symbol", "")).replace(".NS", "")[:8],
-                    money(r.get("dividend_per_share")),
-                    str(r.get("ex_date", ""))[:10],
-                    str(r.get("cum_date", ""))[:10],
-                    pct(r.get("dividend_yield")),
-                ])
-
-    if rows:
-        send_table(token, chat_id, "DIVIDEND | NIFTY 500",
-                   ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"], rows)
+    m1 += ["", "💵 <b>DIVIDEND</b>"]
+    ex = pd.to_datetime(work.get("next_dividend_ex_date"), errors="coerce")
+    upcoming = work[ex.notna()].sort_values("next_dividend_ex_date").head(5)
+    if upcoming.empty:
+        m1.append("• No upcoming dividend data")
     else:
-        send_table(token, chat_id, "DIVIDEND | NIFTY 500",
-                   ["#","Stock","Div/SH","Ex-Date","Buy-By","Yield"],
-                   [["-","NONE","-","-","-","-"]])
+        for _, r in upcoming.iterrows():
+            m1.append(
+                f"• {sym(r['symbol'])}: {money(r.get('next_dividend_per_share'))}/sh"
+                f" · ex {str(r.get('next_dividend_ex_date',''))[:10]}"
+            )
+
+    m1 += ["", "⚠️ <b>ALERTS</b>"]
+    if "trend_20d_health" in work:
+        bad = int(work["trend_20d_health"].astype(str).eq("deteriorating").sum())
+        m1.append(f"• Deteriorating trend: {bad}")
+    changes = 0
+    for h in ("3M","6M","12M","18M","24M","36M"):
+        col = f"{h}_prediction_stability"
+        if col in work:
+            changes += int(work[col].astype(str).isin(["watch","large_change"]).sum())
+    m1.append(f"• Forecast watch/large change: {changes}")
+
+    m1 += ["", "📋 <b>HOLDINGS</b>", "<pre>Stock       Qty    Avg     Now     P/L"]
+    for _, r in work.iterrows():
+        m1.append(
+            f"{sym(r['symbol'])[:10]:10} {int(float(r['quantity'])):5d} "
+            f"{float(r['purchase_price']):7.2f} {float(r['current_price']):7.2f} "
+            f"{pct(r['_ret']):>7}"
+        )
+    m1.append("</pre>")
+    send_message(token, chat_id, "\n".join(m1))
+
+    m2 = [
+        "🧠 <b>PORTFOLIO INTELLIGENCE</b>",
+        f"📅 {date}",
+        "",
+        "🔮 <b>FORECAST · 3M → 36M</b>",
+        "<pre>Stock       Now   3M   6M  12M  18M  24M  36M",
+    ]
+    for _, r in work.iterrows():
+        vals = [price(r.get(f"{h}_predicted_price")) for h in ("3M","6M","12M","18M","24M","36M")]
+        m2.append(
+            f"{sym(r['symbol'])[:10]:10} {price(r['current_price']):>5} "
+            + " ".join(f"{v:>5}" for v in vals)
+        )
+    m2.append("</pre>")
+
+    m2 += ["🎯 <b>ACTIONABLE AVERAGING</b>"]
+    plan_path = ROOT / "predictions" / "averaging_plan.csv"
+    plan = pd.read_csv(plan_path) if plan_path.exists() else pd.DataFrame()
+    if plan.empty:
+        m2.append("• No qualifying averaging plan")
+    else:
+        for _, x in plan.iterrows():
+            m2.append(
+                f"• {sym(x['symbol'])}: B{x['entry']} {money(x['buy_price'])}"
+                f" +{int(float(x['additional_quantity']))} → avg {money(x['cumulative_average'])}"
+                f" · target {pct(x['forecast_profit_percent'])}"
+            )
+
+    m2 += ["", "🧪 <b>MODEL LEARNING</b>"]
+    learning = pd.read_csv(LEARNING) if LEARNING.exists() else pd.DataFrame()
+    if learning.empty:
+        m2.append("• Completed real-forecast evaluations: 0")
+    else:
+        m2.append(f"• Forecasts evaluated: {len(learning)}")
+        for col, label in [("mae","MAE"),("rmse","RMSE"),("direction_accuracy","Direction")]:
+            if col in learning.columns:
+                v = pd.to_numeric(learning[col], errors="coerce").dropna()
+                if len(v):
+                    m2.append(f"• {label}: {pct(v.iloc[-1])}")
+
+    score = pd.read_csv(SCORECARD) if SCORECARD.exists() else pd.DataFrame()
+    if not score.empty and "validation_mae" in score:
+        v = pd.to_numeric(score["validation_mae"], errors="coerce").dropna()
+        if len(v):
+            m2.append(f"• Current validation MAE: {v.mean():.1%} avg")
+
+    m2 += ["", "🧪 <b>BACKTEST EVIDENCE</b>"]
+    if BACKTEST.exists():
+        lines = BACKTEST.read_text(encoding="utf-8").splitlines()
+        useful = [x[2:] for x in lines if x.startswith("- ")][:7]
+        m2.extend(f"• {x}" for x in useful)
+    else:
+        m2.append("• Report not available")
+
+    m2 += [
+        "",
+        "🔄 Forecast = estimate, not guaranteed return.",
+        "⚠️ Long-horizon forecasts have higher uncertainty.",
+    ]
+    send_message(token, chat_id, "\n".join(m2))
 
 
 if __name__ == "__main__":
