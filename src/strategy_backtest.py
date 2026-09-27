@@ -43,6 +43,7 @@ def _simulate_plan(prices, plan_date, plan):
     capital_deployed = 0.0
     cumulative_qty = 0.0
     cumulative_capital = 0.0
+    filled_flags = [False] * len(rows)
     deterioration_streak = 0
     ma20 = prices["Close"].rolling(20, min_periods=20).mean()
     ma50 = prices["Close"].rolling(50, min_periods=50).mean()
@@ -52,14 +53,13 @@ def _simulate_plan(prices, plan_date, plan):
         if days > max_holding_days:
             break
 
-        filled = sum(1 for hit_date in reached if hit_date is not None and hit_date <= date)
-        if filled > reached_count:
-            for i, hit_date in enumerate(reached):
-                if hit_date is not None and hit_date <= date and i >= reached_count:
-                    cumulative_qty += float(rows[i]["additional_quantity"])
-                    cumulative_capital += float(rows[i]["capital"])
-            reached_count = filled
-            capital_deployed = cumulative_capital
+        for i, hit_date in enumerate(reached):
+            if hit_date is not None and hit_date <= date and not filled_flags[i]:
+                filled_flags[i] = True
+                cumulative_qty += float(rows[i]["additional_quantity"])
+                cumulative_capital += float(rows[i]["capital"])
+        reached_count = sum(filled_flags)
+        capital_deployed = cumulative_capital
 
         if reached_count == 0:
             continue
@@ -121,8 +121,10 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
     if len(usable) < 260:
         return []
 
+    # An origin only needs enough labelled history for the selected horizon;
+    # it does not need the horizon's target to exist after the origin.
     origins = list(
-        range(200, len(usable) - 63, max(21, step))
+        range(200, len(usable) - MIN_HOLD_DAYS, max(21, step))
     )[-max_folds:]
     results = []
 
@@ -134,8 +136,10 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
 
         forecasts, lowers = {}, {}
         for h, days in HORIZONS.items():
-            # Require a complete future target window from this origin.
-            if origin + days >= len(usable):
+            # fit_forecast needs at least 80 labelled rows. At an origin,
+            # target_h is labelled only for rows at least days before origin.
+            labelled_rows = origin + 1 - days
+            if labelled_rows < 80:
                 continue
             train_slice = usable.iloc[:origin + 1].copy()
             try:
