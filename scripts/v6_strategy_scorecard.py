@@ -59,7 +59,8 @@ def main():
 
     s = rows[0]
     lines = [
-        "# V6 Strategy Scorecard", "",
+        "# V6 Strategy Scorecard
+# Evidence scorecard generated from persisted V6 rolling backtest.", "",
         f"- Evidence rows: {len(df)}",
         f"- Plan rows: {len(plans)}",
         f"- Trend-blocked: {(df.decision == 'trend_blocked').sum()}",
