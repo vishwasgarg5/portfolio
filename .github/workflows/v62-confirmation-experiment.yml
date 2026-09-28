@@ -1,4 +1,4 @@
-name: V6.2 deterioration confirmation experiment
+name: V6.3 deterioration confirmation experiment
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Run V6.2 experiment
+      - name: Run V6.3 experiment
         run: python scripts/v62_confirmation_experiment.py
       - name: Validate experiment
         run: |
@@ -28,7 +28,7 @@ jobs:
           df=pd.read_csv(p)
           plans=df[df.decision.eq("plan")]
           if len(plans)==0: raise SystemExit("No experiment plans")
-          if set(plans.variant.dropna()) != {"V6_control","V6.2_confirmed"}:
+          if set(plans.variant.dropna()) != {"V6_control","V6.2_prior_low","V6.3_next_close"}:
               raise SystemExit("Missing experiment variants")
           errors=df.decision.astype(str).str.startswith("error:")
           if errors.any(): raise SystemExit(f"Experiment errors: {errors.sum()}")
