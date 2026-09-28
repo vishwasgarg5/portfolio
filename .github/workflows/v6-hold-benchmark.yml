@@ -1,0 +1,47 @@
+name: V6 matched hold benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/v6_hold_benchmark.py"
+      - "predictions/strategy_backtest.csv"
+      - ".github/workflows/v6-hold-benchmark.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run matched benchmark
+        run: python scripts/v6_hold_benchmark.py
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          p=Path("predictions/v6_hold_benchmark.csv")
+          if not p.exists() or p.stat().st_size == 0:
+              raise SystemExit("Benchmark missing")
+          df=pd.read_csv(p)
+          if len(df) == 0:
+              raise SystemExit("No matched benchmark rows")
+          required={"strategy_return","hold_return","incremental_profit_vs_hold"}
+          if not required.issubset(df.columns):
+              raise SystemExit("Benchmark columns missing")
+          print(f"Matched benchmark rows: {len(df)}")
+          PY
+      - name: Commit benchmark
+        run: |
+          git config user.name "portfolio-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add predictions/v6_hold_benchmark.csv predictions/v6_hold_benchmark.md
+          git diff --cached --quiet || git commit -m "feat: add V6 matched hold benchmark"
+          git push
