@@ -14,14 +14,14 @@ OUT_MD = ROOT / "predictions" / "v62_confirmation_experiment.md"
 stocks = pd.read_csv(ROOT / "config" / "stocks.csv")
 rows = []
 
-for mode, confirmation in (("V6_control", False), ("V6.2_confirmed", True)):
+for mode, confirmation_mode in (("V6_control", "none"), ("V6.2_prior_low", "prior_low"), ("V6.3_next_close", "next_close")):
     for r in stocks.to_dict("records"):
         try:
             prices = load_history(str(r["symbol"]))
             out = run_strategy_backtest(
                 prices, str(r["symbol"]), str(r["name"]),
                 float(r["shares"]), float(r["purchase_price"]),
-                deterioration_days=3, confirmation=confirmation
+                deterioration_days=3, confirmation_mode=confirmation_mode
             )
             for x in out:
                 y = dict(x)
