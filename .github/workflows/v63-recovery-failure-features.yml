@@ -1,0 +1,43 @@
+name: V6.3 recovery-failure feature analysis
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run feature analysis
+        run: python scripts/v63_recovery_failure_features.py
+      - name: Validate analysis
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          p="predictions/v63_recovery_failure_features.csv"
+          df=pd.read_csv(p)
+          if len(df) < 10:
+              raise SystemExit("Insufficient deterioration-exit rows")
+          required={"ma20_gap_pct","ma50_gap_pct","ma20_slope_5d_pct","below_prior10_low","below_prior20_low","outcome_60d"}
+          missing=required-set(df.columns)
+          if missing: raise SystemExit(f"Missing columns: {missing}")
+          print(f"Analysed rows: {len(df)}")
+          print(df.outcome_60d.value_counts())
+          PY
+      - name: Commit analysis
+        run: |
+          git config user.name "portfolio-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add predictions/v63_recovery_failure_features.csv predictions/v63_recovery_failure_features.md
+          git diff --cached --quiet || git commit -m "feat: add V6.3 recovery failure feature analysis"
+          git push
