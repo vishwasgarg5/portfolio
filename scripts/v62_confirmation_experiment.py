@@ -37,10 +37,11 @@ df = pd.DataFrame(rows)
 df.to_csv(OUT_CSV, index=False)
 
 plans = df[df["decision"].eq("plan")].copy()
-lines = ["# V6.2 Deterioration Confirmation Experiment", "",
+lines = ["# V6.3 Deterioration Confirmation Experiment", "",
          "- V6 control: 3-day deterioration condition only.",
          "- V6.2 confirmation: 3-day deterioration condition PLUS close below the prior 10-session low.",
-         "- The confirmation is evaluated only after a plan has been created; the entry/origin set is otherwise unchanged.",
+         "- V6.3 confirmation: after the 3-day deterioration condition appears, require a subsequent close below the candidate close while deterioration remains active.",
+         "- All variants use the same historical origins and entry plan construction.",
          ""]
 for variant, g in plans.groupby("variant"):
     lines += [
@@ -60,7 +61,7 @@ for variant, g in plans.groupby("variant"):
 lines += [
     "## Decision rule",
     "- V6 remains the control.",
-    "- V6.2 should only proceed to deeper testing if confirmation changes downside/recovery behaviour without an unacceptable increase in capital deployment or holding time.",
+    "- V6.2 and V6.3 are experiments only; compare downside, recovery, capital deployment and exit timing before any change.",
     "- This experiment does not by itself establish a preferred strategy."
 ]
 OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
