@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 import pandas as pd
 import numpy as np
 
@@ -8,6 +9,8 @@ OUT_CSV = ROOT / "predictions" / "v6_hold_benchmark.csv"
 OUT_MD = ROOT / "predictions" / "v6_hold_benchmark.md"
 
 def main():
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
     from src.data import load_history
     if not INPUT.exists():
         raise SystemExit("strategy_backtest.csv missing")
