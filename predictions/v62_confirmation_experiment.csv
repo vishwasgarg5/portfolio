@@ -105,109 +105,215 @@ V6,SEPC.NS,SEPC,2025-06-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,F
 ,SEPC.NS,SEPC,2025-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6_control
 V6,SEPC.NS,SEPC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6_control
 V6,SEPC.NS,SEPC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6_control
-V6,YESBANK.NS,Yes Bank,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,YESBANK.NS,Yes Bank,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,YESBANK.NS,Yes Bank,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,YESBANK.NS,Yes Bank,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,YESBANK.NS,Yes Bank,2025-09-04,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,YESBANK.NS,Yes Bank,2025-12-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,YESBANK.NS,Yes Bank,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,YESBANK.NS,Yes Bank,2026-06-15,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,RELIANCE.NS,Reliance Industries,2024-08-29,plan,,12M,1874.647143571498,1619.223488203488,1363.799832835478,5941.137158203124,True,False,2024-09-11,1439.072265625,0.05519316763151605,0.05519316763151605,True,deterioration,2,13.0,V6.2_confirmed
-,RELIANCE.NS,Reliance Industries,2024-11-29,plan,,12M,1611.5115747438904,1455.7471597634953,1299.9827447831005,5047.676267089844,False,False,2024-12-19,1219.914794921875,,-0.0696503190692066,True,deterioration,2,20.0,V6.2_confirmed
-V6,RELIANCE.NS,Reliance Industries,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,RELIANCE.NS,Reliance Industries,2025-06-05,plan,,12M,1794.5835627251613,1573.4774789944167,1352.371395263672,8451.596510009766,True,False,2025-08-29,1350.9537353515625,-0.0010482770613712278,-0.0010482770613712278,True,deterioration,2,85.0,V6.2_confirmed
-V6,RELIANCE.NS,Reliance Industries,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,RELIANCE.NS,Reliance Industries,2025-12-05,plan,,18M,2080.8998966235813,1725.3172423001868,1369.7345879767922,6042.027995605469,True,False,2026-01-19,1407.0941162109375,0.027275012664554454,0.027275012664554454,True,deterioration,2,45.0,V6.2_confirmed
-V6,RELIANCE.NS,Reliance Industries,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,RELIANCE.NS,Reliance Industries,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,NTPC.NS,NTPC,2024-08-29,plan,,36M,612.3324857424243,492.37898419297665,372.425482643529,4605.4883404541015,True,False,2024-11-11,375.440673828125,0.008096092574529923,0.008096092574529923,True,deterioration,2,74.0,V6.2_confirmed
-V6,NTPC.NS,NTPC,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,NTPC.NS,NTPC,2025-02-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,NTPC.NS,NTPC,2025-06-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,NTPC.NS,NTPC,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,NTPC.NS,NTPC,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,NTPC.NS,NTPC,2026-03-10,plan,,12M,450.81137854112,409.072864250322,367.3343499595241,4412.025298461915,True,True,2026-04-27,409.072864250322,0.11362540501697427,0.11362540501697427,True,target,2,48.0,V6.2_confirmed
-V6,NTPC.NS,NTPC,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,IREDA.NS,Indian Renewable Energy,2024-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,IREDA.NS,Indian Renewable Energy,2025-03-21,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,IREDA.NS,Indian Renewable Energy,2025-06-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,IREDA.NS,Indian Renewable Energy,2025-09-24,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,IREDA.NS,Indian Renewable Energy,2025-12-26,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,IREDA.NS,Indian Renewable Energy,2026-04-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRFC.NS,IRFC,2024-09-12,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,IRFC.NS,IRFC,2024-12-13,plan,,6M,198.1456711436619,151.52035823083816,104.89504531801438,4505.140884399414,False,True,2024-12-16,151.52035823083816,,0.5321210837154251,True,target,1,3.0,V6.2_confirmed
-V6,IRFC.NS,IRFC,2025-03-13,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,IRFC.NS,IRFC,2025-06-19,plan,,9M,194.72057643689465,147.53058387613504,100.34059131537543,4415.244171142578,False,False,2025-07-22,128.30984497070312,,0.33103598539553847,True,deterioration,1,33.0,V6.2_confirmed
-,IRFC.NS,IRFC,2025-09-18,plan,,18M,290.3543855387635,195.0146264865534,99.6748674343433,8869.88907470703,True,False,2025-11-24,115.67156982421876,0.16048882533415587,0.16048882533415587,True,deterioration,2,67.0,V6.2_confirmed
-V6,IRFC.NS,IRFC,2025-12-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRFC.NS,IRFC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRFC.NS,IRFC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,TATAPOWER.NS,Tata Power,2024-08-29,plan,,24M,760.5217366356783,596.0395552278326,431.557373819987,14671.024251098632,True,False,2024-11-12,409.1912231445313,-0.051826598344221764,-0.051826598344221764,True,deterioration,2,75.0,V6.2_confirmed
-V6,TATAPOWER.NS,Tata Power,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,TATAPOWER.NS,Tata Power,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,TATAPOWER.NS,Tata Power,2025-06-05,plan,,18M,549.8896456982053,479.6114916062701,409.33333751433486,4596.0638671875,False,False,2025-08-28,368.8146057128906,,-0.141769858089543,True,deterioration,2,84.0,V6.2_confirmed
-V6,TATAPOWER.NS,Tata Power,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,TATAPOWER.NS,Tata Power,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,TATAPOWER.NS,Tata Power,2026-03-10,plan,,24M,675.5854985749481,544.9436593771402,414.30182017933237,14930.700219726563,True,False,2026-06-08,401.7107849121094,-0.030390972604882327,-0.030390972604882327,True,deterioration,2,90.0,V6.2_confirmed
-V6,TATAPOWER.NS,Tata Power,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,WIPRO.NS,Wipro,2024-08-29,plan,,24M,334.87847106926455,281.491551645107,228.10463222094947,33925.775234985354,True,True,2024-12-09,281.491551645107,0.23404574867399108,0.23404574867399108,True,target,2,102.0,V6.2_confirmed
-,WIPRO.NS,Wipro,2024-11-29,plan,,24M,359.85741554275006,296.3885202979908,232.91962505323158,16870.153381347653,False,True,2025-01-23,296.3885202979908,,0.29855628168449977,True,target,1,55.0,V6.2_confirmed
-,WIPRO.NS,Wipro,2025-02-27,plan,,24M,374.0897640200172,304.85245332199446,235.6151426239717,33991.871898803714,True,False,2025-03-12,253.84214782714844,0.07735922657681638,0.07735922657681638,True,deterioration,2,13.0,V6.2_confirmed
-,WIPRO.NS,Wipro,2025-06-05,plan,,24M,314.94675180792296,269.2773588385585,223.60796586919406,33923.74040222168,True,False,2025-11-04,229.3131561279297,0.02551425320005385,0.02551425320005385,True,deterioration,2,152.0,V6.2_confirmed
-V6,WIPRO.NS,Wipro,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,WIPRO.NS,Wipro,2025-12-05,plan,,18M,336.65022392980586,282.50936529309007,228.36850665637425,34043.99098205565,True,False,2026-02-12,216.606201171875,-0.05150581249890973,-0.05150581249890973,True,deterioration,2,69.0,V6.2_confirmed
-V6,WIPRO.NS,Wipro,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,WIPRO.NS,Wipro,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,PALASHSECU.NS,Palash Securities,2024-08-12,plan,,36M,301.00970143112113,211.76219547663362,122.51468952214607,17411.287115478517,True,False,2025-01-10,145.3000030517578,0.18598025770202042,0.18598025770202042,True,deterioration,2,151.0,V6.2_confirmed
-,PALASHSECU.NS,Palash Securities,2024-11-11,plan,,36M,365.31719670177387,247.09190418667964,128.86661167158542,17423.71095033527,True,False,2025-01-10,145.3000030517578,0.12752249141191552,0.12752249141191552,True,deterioration,2,60.0,V6.2_confirmed
-V6,PALASHSECU.NS,Palash Securities,2025-02-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,PALASHSECU.NS,Palash Securities,2025-05-20,plan,,36M,269.49879033453607,193.9337984975229,118.36880666050975,17294.012543945315,True,False,2025-08-01,119.87999725341795,0.012766797567220545,0.012766797567220545,True,deterioration,2,73.0,V6.2_confirmed
-V6,PALASHSECU.NS,Palash Securities,2025-08-18,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,PALASHSECU.NS,Palash Securities,2025-11-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,PALASHSECU.NS,Palash Securities,2026-02-19,plan,,36M,212.75302457930488,160.87398704063915,108.99494950197342,8689.069755554197,False,False,2026-02-20,95.51917555840892,,-0.15000000000000002,True,stop_loss,1,1.0,V6.2_confirmed
-,PALASHSECU.NS,Palash Securities,2026-05-27,plan,,36M,215.6295372846024,162.5819043020785,109.53427131955459,17441.915962066654,True,False,2026-06-10,93.10413062162141,-0.15000000000000002,-0.15000000000000002,True,stop_loss,2,14.0,V6.2_confirmed
-,OLAELEC.NS,Ola Electric Mobility,2025-08-28,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,OLAELEC.NS,Ola Electric Mobility,2025-11-28,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,OLAELEC.NS,Ola Electric Mobility,2026-03-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,OLAELEC.NS,Ola Electric Mobility,2026-06-08,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,STARCEMENT.NS,Star Cement,2024-08-23,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,STARCEMENT.NS,Star Cement,2024-11-25,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,STARCEMENT.NS,Star Cement,2025-02-20,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,STARCEMENT.NS,Star Cement,2025-05-30,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,STARCEMENT.NS,Star Cement,2025-08-29,plan,,18M,391.0212544557539,332.1858646024873,273.3504747492208,11443.910293151039,True,False,2025-11-12,237.36276245117188,-0.13165410570830371,-0.13165410570830371,True,deterioration,2,75.0,V6.2_confirmed
-V6,STARCEMENT.NS,Star Cement,2025-12-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,STARCEMENT.NS,Star Cement,2026-03-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,STARCEMENT.NS,Star Cement,2026-06-09,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,SJVN.NS,SJVN,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,SJVN.NS,SJVN,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,SJVN.NS,SJVN,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2024-06-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2024-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2024-12-23,plan,,6M,63.46921289900604,52.22026139678345,40.97130989456086,44936.9947926835,True,False,2025-02-27,34.82561341037674,-0.15000000000000013,-0.15000000000000013,True,stop_loss,2,66.0,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2025-03-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2025-06-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,RPOWER.NS,Reliance Power,2025-09-26,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,RPOWER.NS,Reliance Power,2025-12-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,RPOWER.NS,Reliance Power,2026-04-06,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2024-08-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,IRCTC.NS,IRCTC,2024-11-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2025-02-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,IRCTC.NS,IRCTC,2025-06-03,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2025-09-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2025-12-03,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2026-03-06,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,IRCTC.NS,IRCTC,2026-06-11,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,SEPC.NS,SEPC,2024-09-12,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,SEPC.NS,SEPC,2024-12-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,SEPC.NS,SEPC,2025-03-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,SEPC.NS,SEPC,2025-06-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-,SEPC.NS,SEPC,2025-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-,SEPC.NS,SEPC,2025-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_confirmed
-V6,SEPC.NS,SEPC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
-V6,SEPC.NS,SEPC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_confirmed
+V6,YESBANK.NS,Yes Bank,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,YESBANK.NS,Yes Bank,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,YESBANK.NS,Yes Bank,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,YESBANK.NS,Yes Bank,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,YESBANK.NS,Yes Bank,2025-09-04,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,YESBANK.NS,Yes Bank,2025-12-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,YESBANK.NS,Yes Bank,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,YESBANK.NS,Yes Bank,2026-06-15,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,RELIANCE.NS,Reliance Industries,2024-08-29,plan,,12M,1874.647143571498,1619.223488203488,1363.799832835478,5941.137158203124,True,False,2024-09-11,1439.072265625,0.05519316763151605,0.05519316763151605,True,deterioration,2,13.0,V6.2_prior_low
+,RELIANCE.NS,Reliance Industries,2024-11-29,plan,,12M,1611.5115747438904,1455.7471597634953,1299.9827447831005,5047.676267089844,False,False,2024-12-19,1219.914794921875,,-0.0696503190692066,True,deterioration,2,20.0,V6.2_prior_low
+V6,RELIANCE.NS,Reliance Industries,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,RELIANCE.NS,Reliance Industries,2025-06-05,plan,,12M,1794.5835627251613,1573.4774789944167,1352.371395263672,8451.596510009766,True,False,2025-08-29,1350.9537353515625,-0.0010482770613712278,-0.0010482770613712278,True,deterioration,2,85.0,V6.2_prior_low
+V6,RELIANCE.NS,Reliance Industries,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,RELIANCE.NS,Reliance Industries,2025-12-05,plan,,18M,2080.8998966235813,1725.3172423001868,1369.7345879767922,6042.027995605469,True,False,2026-01-19,1407.0941162109375,0.027275012664554454,0.027275012664554454,True,deterioration,2,45.0,V6.2_prior_low
+V6,RELIANCE.NS,Reliance Industries,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,RELIANCE.NS,Reliance Industries,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,NTPC.NS,NTPC,2024-08-29,plan,,36M,612.3324857424243,492.37898419297665,372.425482643529,4605.4883404541015,True,False,2024-11-11,375.440673828125,0.008096092574529923,0.008096092574529923,True,deterioration,2,74.0,V6.2_prior_low
+V6,NTPC.NS,NTPC,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,NTPC.NS,NTPC,2025-02-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,NTPC.NS,NTPC,2025-06-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,NTPC.NS,NTPC,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,NTPC.NS,NTPC,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,NTPC.NS,NTPC,2026-03-10,plan,,12M,450.81137854112,409.072864250322,367.3343499595241,4412.025298461915,True,True,2026-04-27,409.072864250322,0.11362540501697427,0.11362540501697427,True,target,2,48.0,V6.2_prior_low
+V6,NTPC.NS,NTPC,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,IREDA.NS,Indian Renewable Energy,2024-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,IREDA.NS,Indian Renewable Energy,2025-03-21,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,IREDA.NS,Indian Renewable Energy,2025-06-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,IREDA.NS,Indian Renewable Energy,2025-09-24,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,IREDA.NS,Indian Renewable Energy,2025-12-26,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,IREDA.NS,Indian Renewable Energy,2026-04-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRFC.NS,IRFC,2024-09-12,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,IRFC.NS,IRFC,2024-12-13,plan,,6M,198.1456711436619,151.52035823083816,104.89504531801438,4505.140884399414,False,True,2024-12-16,151.52035823083816,,0.5321210837154251,True,target,1,3.0,V6.2_prior_low
+V6,IRFC.NS,IRFC,2025-03-13,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,IRFC.NS,IRFC,2025-06-19,plan,,9M,194.72057643689465,147.53058387613504,100.34059131537543,4415.244171142578,False,False,2025-07-22,128.30984497070312,,0.33103598539553847,True,deterioration,1,33.0,V6.2_prior_low
+,IRFC.NS,IRFC,2025-09-18,plan,,18M,290.3543855387635,195.0146264865534,99.6748674343433,8869.88907470703,True,False,2025-11-24,115.67156982421876,0.16048882533415587,0.16048882533415587,True,deterioration,2,67.0,V6.2_prior_low
+V6,IRFC.NS,IRFC,2025-12-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRFC.NS,IRFC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRFC.NS,IRFC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,TATAPOWER.NS,Tata Power,2024-08-29,plan,,24M,760.5217366356783,596.0395552278326,431.557373819987,14671.024251098632,True,False,2024-11-12,409.1912231445313,-0.051826598344221764,-0.051826598344221764,True,deterioration,2,75.0,V6.2_prior_low
+V6,TATAPOWER.NS,Tata Power,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,TATAPOWER.NS,Tata Power,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,TATAPOWER.NS,Tata Power,2025-06-05,plan,,18M,549.8896456982053,479.6114916062701,409.33333751433486,4596.0638671875,False,False,2025-08-28,368.8146057128906,,-0.141769858089543,True,deterioration,2,84.0,V6.2_prior_low
+V6,TATAPOWER.NS,Tata Power,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,TATAPOWER.NS,Tata Power,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,TATAPOWER.NS,Tata Power,2026-03-10,plan,,24M,675.5854985749481,544.9436593771402,414.30182017933237,14930.700219726563,True,False,2026-06-08,401.7107849121094,-0.030390972604882327,-0.030390972604882327,True,deterioration,2,90.0,V6.2_prior_low
+V6,TATAPOWER.NS,Tata Power,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,WIPRO.NS,Wipro,2024-08-29,plan,,24M,334.87847106926455,281.491551645107,228.10463222094947,33925.775234985354,True,True,2024-12-09,281.491551645107,0.23404574867399108,0.23404574867399108,True,target,2,102.0,V6.2_prior_low
+,WIPRO.NS,Wipro,2024-11-29,plan,,24M,359.85741554275006,296.3885202979908,232.91962505323158,16870.153381347653,False,True,2025-01-23,296.3885202979908,,0.29855628168449977,True,target,1,55.0,V6.2_prior_low
+,WIPRO.NS,Wipro,2025-02-27,plan,,24M,374.0897640200172,304.85245332199446,235.6151426239717,33991.871898803714,True,False,2025-03-12,253.84214782714844,0.07735922657681638,0.07735922657681638,True,deterioration,2,13.0,V6.2_prior_low
+,WIPRO.NS,Wipro,2025-06-05,plan,,24M,314.94675180792296,269.2773588385585,223.60796586919406,33923.74040222168,True,False,2025-11-04,229.3131561279297,0.02551425320005385,0.02551425320005385,True,deterioration,2,152.0,V6.2_prior_low
+V6,WIPRO.NS,Wipro,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,WIPRO.NS,Wipro,2025-12-05,plan,,18M,336.65022392980586,282.50936529309007,228.36850665637425,34043.99098205565,True,False,2026-02-12,216.606201171875,-0.05150581249890973,-0.05150581249890973,True,deterioration,2,69.0,V6.2_prior_low
+V6,WIPRO.NS,Wipro,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,WIPRO.NS,Wipro,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,PALASHSECU.NS,Palash Securities,2024-08-12,plan,,36M,301.00970143112113,211.76219547663362,122.51468952214607,17411.287115478517,True,False,2025-01-10,145.3000030517578,0.18598025770202042,0.18598025770202042,True,deterioration,2,151.0,V6.2_prior_low
+,PALASHSECU.NS,Palash Securities,2024-11-11,plan,,36M,365.31719670177387,247.09190418667964,128.86661167158542,17423.71095033527,True,False,2025-01-10,145.3000030517578,0.12752249141191552,0.12752249141191552,True,deterioration,2,60.0,V6.2_prior_low
+V6,PALASHSECU.NS,Palash Securities,2025-02-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,PALASHSECU.NS,Palash Securities,2025-05-20,plan,,36M,269.49879033453607,193.9337984975229,118.36880666050975,17294.012543945315,True,False,2025-08-01,119.87999725341795,0.012766797567220545,0.012766797567220545,True,deterioration,2,73.0,V6.2_prior_low
+V6,PALASHSECU.NS,Palash Securities,2025-08-18,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,PALASHSECU.NS,Palash Securities,2025-11-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,PALASHSECU.NS,Palash Securities,2026-02-19,plan,,36M,212.75302457930488,160.87398704063915,108.99494950197342,8689.069755554197,False,False,2026-02-20,95.51917555840892,,-0.15000000000000002,True,stop_loss,1,1.0,V6.2_prior_low
+,PALASHSECU.NS,Palash Securities,2026-05-27,plan,,36M,215.6295372846024,162.5819043020785,109.53427131955459,17441.915962066654,True,False,2026-06-10,93.10413062162141,-0.15000000000000002,-0.15000000000000002,True,stop_loss,2,14.0,V6.2_prior_low
+,OLAELEC.NS,Ola Electric Mobility,2025-08-28,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,OLAELEC.NS,Ola Electric Mobility,2025-11-28,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,OLAELEC.NS,Ola Electric Mobility,2026-03-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,OLAELEC.NS,Ola Electric Mobility,2026-06-08,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,STARCEMENT.NS,Star Cement,2024-08-23,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,STARCEMENT.NS,Star Cement,2024-11-25,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,STARCEMENT.NS,Star Cement,2025-02-20,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,STARCEMENT.NS,Star Cement,2025-05-30,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,STARCEMENT.NS,Star Cement,2025-08-29,plan,,18M,391.0212544557539,332.1858646024873,273.3504747492208,11443.910293151039,True,False,2025-11-12,237.36276245117188,-0.13165410570830371,-0.13165410570830371,True,deterioration,2,75.0,V6.2_prior_low
+V6,STARCEMENT.NS,Star Cement,2025-12-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,STARCEMENT.NS,Star Cement,2026-03-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,STARCEMENT.NS,Star Cement,2026-06-09,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,SJVN.NS,SJVN,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,SJVN.NS,SJVN,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,SJVN.NS,SJVN,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2024-06-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2024-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2024-12-23,plan,,6M,63.46921289900604,52.22026139678345,40.97130989456086,44936.9947926835,True,False,2025-02-27,34.82561341037674,-0.15000000000000013,-0.15000000000000013,True,stop_loss,2,66.0,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2025-03-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2025-06-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,RPOWER.NS,Reliance Power,2025-09-26,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,RPOWER.NS,Reliance Power,2025-12-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,RPOWER.NS,Reliance Power,2026-04-06,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2024-08-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,IRCTC.NS,IRCTC,2024-11-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2025-02-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,IRCTC.NS,IRCTC,2025-06-03,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2025-09-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2025-12-03,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2026-03-06,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,IRCTC.NS,IRCTC,2026-06-11,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,SEPC.NS,SEPC,2024-09-12,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,SEPC.NS,SEPC,2024-12-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,SEPC.NS,SEPC,2025-03-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,SEPC.NS,SEPC,2025-06-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+,SEPC.NS,SEPC,2025-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+,SEPC.NS,SEPC,2025-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.2_prior_low
+V6,SEPC.NS,SEPC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,SEPC.NS,SEPC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.2_prior_low
+V6,YESBANK.NS,Yes Bank,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,YESBANK.NS,Yes Bank,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,YESBANK.NS,Yes Bank,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,YESBANK.NS,Yes Bank,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,YESBANK.NS,Yes Bank,2025-09-04,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,YESBANK.NS,Yes Bank,2025-12-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,YESBANK.NS,Yes Bank,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,YESBANK.NS,Yes Bank,2026-06-15,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,RELIANCE.NS,Reliance Industries,2024-08-29,plan,,12M,1874.647143571498,1619.223488203488,1363.799832835478,5941.137158203124,True,False,2024-09-11,1439.072265625,0.05519316763151605,0.05519316763151605,True,deterioration,2,13.0,V6.3_next_close
+,RELIANCE.NS,Reliance Industries,2024-11-29,plan,,12M,1611.5115747438904,1455.7471597634953,1299.9827447831005,5047.676267089844,False,False,2024-12-16,1257.44091796875,,-0.041031585409643356,True,deterioration,2,17.0,V6.3_next_close
+V6,RELIANCE.NS,Reliance Industries,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,RELIANCE.NS,Reliance Industries,2025-06-05,plan,,12M,1794.5835627251613,1573.4774789944167,1352.371395263672,8451.596510009766,True,False,2025-08-07,1377.50390625,0.01858403029992206,0.01858403029992206,True,deterioration,2,63.0,V6.3_next_close
+V6,RELIANCE.NS,Reliance Industries,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,RELIANCE.NS,Reliance Industries,2025-12-05,plan,,18M,2080.8998966235813,1725.3172423001868,1369.7345879767922,6042.027995605469,True,False,2026-01-20,1387.5843505859375,0.013031548422465455,0.013031548422465455,True,deterioration,2,46.0,V6.3_next_close
+V6,RELIANCE.NS,Reliance Industries,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,RELIANCE.NS,Reliance Industries,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,NTPC.NS,NTPC,2024-08-29,plan,,36M,612.3324857424243,492.37898419297665,372.425482643529,4605.4883404541015,True,False,2024-11-07,386.2003173828125,0.03698682120650765,0.03698682120650765,True,deterioration,2,70.0,V6.3_next_close
+V6,NTPC.NS,NTPC,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,NTPC.NS,NTPC,2025-02-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,NTPC.NS,NTPC,2025-06-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,NTPC.NS,NTPC,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,NTPC.NS,NTPC,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,NTPC.NS,NTPC,2026-03-10,plan,,12M,450.81137854112,409.072864250322,367.3343499595241,4412.025298461915,True,True,2026-04-27,409.072864250322,0.11362540501697427,0.11362540501697427,True,target,2,48.0,V6.3_next_close
+V6,NTPC.NS,NTPC,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,IREDA.NS,Indian Renewable Energy,2024-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,IREDA.NS,Indian Renewable Energy,2025-03-21,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,IREDA.NS,Indian Renewable Energy,2025-06-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,IREDA.NS,Indian Renewable Energy,2025-09-24,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,IREDA.NS,Indian Renewable Energy,2025-12-26,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,IREDA.NS,Indian Renewable Energy,2026-04-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRFC.NS,IRFC,2024-09-12,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,IRFC.NS,IRFC,2024-12-13,plan,,6M,198.1456711436619,151.52035823083816,104.89504531801438,4505.140884399414,False,True,2024-12-16,151.52035823083816,,0.5321210837154251,True,target,1,3.0,V6.3_next_close
+V6,IRFC.NS,IRFC,2025-03-13,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,IRFC.NS,IRFC,2025-06-19,plan,,9M,194.72057643689465,147.53058387613504,100.34059131537543,8949.959655151368,True,False,2025-07-31,125.92555236816406,0.25498116681786165,0.25498116681786165,True,deterioration,2,42.0,V6.3_next_close
+,IRFC.NS,IRFC,2025-09-18,plan,,18M,290.3543855387635,195.0146264865534,99.6748674343433,8869.88907470703,True,False,2025-09-30,121.1864242553711,0.21581726040616656,0.21581726040616656,True,deterioration,2,12.0,V6.3_next_close
+V6,IRFC.NS,IRFC,2025-12-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRFC.NS,IRFC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRFC.NS,IRFC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,TATAPOWER.NS,Tata Power,2024-08-29,plan,,24M,760.5217366356783,596.0395552278326,431.557373819987,14671.024251098632,True,False,2024-11-12,409.1912231445313,-0.051826598344221764,-0.051826598344221764,True,deterioration,2,75.0,V6.3_next_close
+V6,TATAPOWER.NS,Tata Power,2024-11-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,TATAPOWER.NS,Tata Power,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,TATAPOWER.NS,Tata Power,2025-06-05,plan,,18M,549.8896456982053,479.6114916062701,409.33333751433486,4596.0638671875,False,False,2025-08-25,380.8898010253906,,-0.11367092592656125,True,deterioration,2,81.0,V6.3_next_close
+V6,TATAPOWER.NS,Tata Power,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,TATAPOWER.NS,Tata Power,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,TATAPOWER.NS,Tata Power,2026-03-10,plan,,24M,675.5854985749481,544.9436593771402,414.30182017933237,14930.700219726563,True,False,2026-06-09,396.1949462890625,-0.04370454825043302,-0.04370454825043302,True,deterioration,2,91.0,V6.3_next_close
+V6,TATAPOWER.NS,Tata Power,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,WIPRO.NS,Wipro,2024-08-29,plan,,24M,334.87847106926455,281.491551645107,228.10463222094947,33925.775234985354,True,True,2024-12-09,281.491551645107,0.23404574867399108,0.23404574867399108,True,target,2,102.0,V6.3_next_close
+,WIPRO.NS,Wipro,2024-11-29,plan,,24M,359.85741554275006,296.3885202979908,232.91962505323158,16870.153381347653,False,True,2025-01-23,296.3885202979908,,0.29855628168449977,True,target,1,55.0,V6.3_next_close
+,WIPRO.NS,Wipro,2025-02-27,plan,,24M,374.0897640200172,304.85245332199446,235.6151426239717,33991.871898803714,True,False,2025-03-13,249.5413360595703,0.05910568090194457,0.05910568090194457,True,deterioration,2,14.0,V6.3_next_close
+,WIPRO.NS,Wipro,2025-06-05,plan,,24M,314.94675180792296,269.2773588385585,223.60796586919406,16873.98486328125,False,False,2025-08-08,230.40228271484372,,0.03376342532228449,True,deterioration,1,64.0,V6.3_next_close
+V6,WIPRO.NS,Wipro,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,WIPRO.NS,Wipro,2025-12-05,plan,,18M,336.65022392980586,282.50936529309007,228.36850665637425,34043.99098205565,True,False,2026-02-04,230.7051696777344,0.010231984504221359,0.010231984504221359,True,deterioration,2,61.0,V6.3_next_close
+V6,WIPRO.NS,Wipro,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,WIPRO.NS,Wipro,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,PALASHSECU.NS,Palash Securities,2024-08-12,plan,,36M,301.00970143112113,211.76219547663362,122.51468952214607,17411.287115478517,True,False,2025-02-14,125.77999877929688,0.026652389765559947,0.026652389765559947,True,deterioration,2,186.0,V6.3_next_close
+,PALASHSECU.NS,Palash Securities,2024-11-11,plan,,36M,365.31719670177387,247.09190418667964,128.86661167158542,17423.71095033527,True,False,2025-01-13,144.58999633789062,0.12201286634567543,0.12201286634567543,True,deterioration,2,63.0,V6.3_next_close
+V6,PALASHSECU.NS,Palash Securities,2025-02-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,PALASHSECU.NS,Palash Securities,2025-05-20,plan,,36M,269.49879033453607,193.9337984975229,118.36880666050975,17294.012543945315,True,False,2025-08-01,119.87999725341795,0.012766797567220545,0.012766797567220545,True,deterioration,2,73.0,V6.3_next_close
+V6,PALASHSECU.NS,Palash Securities,2025-08-18,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,PALASHSECU.NS,Palash Securities,2025-11-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,PALASHSECU.NS,Palash Securities,2026-02-19,plan,,36M,212.75302457930488,160.87398704063915,108.99494950197342,8689.069755554197,False,False,2026-02-20,95.51917555840892,,-0.15000000000000002,True,stop_loss,1,1.0,V6.3_next_close
+,PALASHSECU.NS,Palash Securities,2026-05-27,plan,,36M,215.6295372846024,162.5819043020785,109.53427131955459,17441.915962066654,True,False,2026-06-10,93.10413062162141,-0.15000000000000002,-0.15000000000000002,True,stop_loss,2,14.0,V6.3_next_close
+,OLAELEC.NS,Ola Electric Mobility,2025-08-28,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,OLAELEC.NS,Ola Electric Mobility,2025-11-28,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,OLAELEC.NS,Ola Electric Mobility,2026-03-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,OLAELEC.NS,Ola Electric Mobility,2026-06-08,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,STARCEMENT.NS,Star Cement,2024-08-23,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,STARCEMENT.NS,Star Cement,2024-11-25,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,STARCEMENT.NS,Star Cement,2025-02-20,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,STARCEMENT.NS,Star Cement,2025-05-30,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,STARCEMENT.NS,Star Cement,2025-08-29,plan,,18M,391.0212544557539,332.1858646024873,273.3504747492208,11443.910293151039,True,False,2025-10-17,256.57476806640625,-0.061370687935351165,-0.061370687935351165,True,deterioration,2,49.0,V6.3_next_close
+V6,STARCEMENT.NS,Star Cement,2025-12-01,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,STARCEMENT.NS,Star Cement,2026-03-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,STARCEMENT.NS,Star Cement,2026-06-09,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2024-08-29,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,SJVN.NS,SJVN,2024-11-29,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2025-02-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,SJVN.NS,SJVN,2025-06-05,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2025-09-04,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2025-12-05,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2026-03-10,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,SJVN.NS,SJVN,2026-06-15,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,RPOWER.NS,Reliance Power,2024-06-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,RPOWER.NS,Reliance Power,2024-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,RPOWER.NS,Reliance Power,2024-12-23,plan,,6M,63.46921289900604,52.22026139678345,40.97130989456086,44936.9947926835,True,False,2025-02-18,36.77999877929688,-0.10229868476380855,-0.10229868476380855,True,deterioration,2,57.0,V6.3_next_close
+,RPOWER.NS,Reliance Power,2025-03-25,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,RPOWER.NS,Reliance Power,2025-06-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,RPOWER.NS,Reliance Power,2025-09-26,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,RPOWER.NS,Reliance Power,2025-12-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,RPOWER.NS,Reliance Power,2026-04-06,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2024-08-27,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,IRCTC.NS,IRCTC,2024-11-27,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2025-02-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,IRCTC.NS,IRCTC,2025-06-03,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2025-09-02,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2025-12-03,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2026-03-06,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,IRCTC.NS,IRCTC,2026-06-11,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,SEPC.NS,SEPC,2024-09-12,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,SEPC.NS,SEPC,2024-12-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,SEPC.NS,SEPC,2025-03-13,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,SEPC.NS,SEPC,2025-06-19,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+,SEPC.NS,SEPC,2025-09-18,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+,SEPC.NS,SEPC,2025-12-19,no_plan,,,,,,0.0,False,False,,,,,False,no_plan,0,,V6.3_next_close
+V6,SEPC.NS,SEPC,2026-03-24,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
+V6,SEPC.NS,SEPC,2026-06-30,trend_blocked,deteriorating,,,,,0.0,False,False,,,,,False,trend_blocked,0,,V6.3_next_close
