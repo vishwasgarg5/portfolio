@@ -35,10 +35,11 @@ def _adaptive_target(final_average, forecast_exit_price):
     average = float(final_average)
     forecast = float(forecast_exit_price)
     minimum = average * (1.0 + MIN_TARGET_PROFIT)
-    if forecast < minimum:
-        return forecast
     midpoint = average + ADAPTIVE_TARGET_FRACTION * (forecast - average)
-    return max(minimum, min(forecast, midpoint))
+    # Always preserve the configured minimum-profit target. If the model forecast
+    # is below that threshold, the strategy waits for the minimum target rather
+    # than silently lowering the exit target to an unprofitable forecast.
+    return max(minimum, min(forecast, midpoint)) if forecast >= average else minimum
 
 
 def _simulate_plan(prices, plan_date, plan, deterioration_days=DETERIORATION_DAYS, confirmation_mode="none"):
@@ -156,8 +157,6 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
     if len(usable) < 260:
         return []
 
-    # An origin only needs enough labelled history for the selected horizon;
-    # it does not need the horizon's target to exist after the origin.
     start_origin = min(200, max(150, len(usable) - MIN_HOLD_DAYS - max(21, step)))
     origins = list(
         range(start_origin, len(usable) - MIN_HOLD_DAYS, max(21, step))
@@ -174,8 +173,6 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
 
         forecasts, lowers = {}, {}
         for h, days in HORIZONS.items():
-            # fit_forecast needs at least 80 labelled rows. At an origin,
-            # target_h is labelled only for rows at least days before origin.
             labelled_rows = origin + 1 - days
             if labelled_rows < 80:
                 continue
@@ -290,7 +287,6 @@ def run():
             })
 
     df = pd.DataFrame(rows)
-    # Normalize the schema so every outcome, including no-plan/error rows, is explicitly V6.
     if not df.empty:
         df["version"] = VERSION
     OUT.parent.mkdir(parents=True, exist_ok=True)
