@@ -31,7 +31,7 @@ NIFTY 50 benchmark data uses Yahoo Finance symbol ^NSEI. If benchmark data is te
 
 ## Automatic retraining
 
-The scheduled GitHub Actions workflow runs on weekdays around 18:15 IST:
+The scheduled GitHub Actions workflow runs on weekdays at 16:30 IST (11:00 UTC):
 1. downloads the newest stock and NIFTY data
 2. rebuilds features
 3. retrains the forecasting models from the updated history
