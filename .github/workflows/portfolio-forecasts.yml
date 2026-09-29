@@ -37,6 +37,37 @@ jobs:
       - name: Update data, forecasts and portfolio report
         run: python scripts/update_forecasts.py
 
+      - name: Validate forecast data freshness and coverage
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+
+          p = Path("predictions/latest.csv")
+          if not p.exists() or p.stat().st_size == 0:
+              raise SystemExit("Forecast output missing or empty")
+
+          df = pd.read_csv(p)
+          if df.empty:
+              raise SystemExit("Forecast output contains zero stocks")
+
+          total = len(df)
+          ok = int(df["status"].eq("ok").sum())
+          coverage = ok / total
+          if coverage < 0.90:
+              raise SystemExit(f"Forecast coverage too low: {ok}/{total} ({coverage:.1%})")
+
+          if "data_date" not in df.columns:
+              raise SystemExit("Forecast output missing data_date")
+          missing_dates = int(df["data_date"].isna().sum())
+          if missing_dates:
+              raise SystemExit(f"{missing_dates} stocks have no market-data date")
+
+          print(f"Forecast coverage: {ok}/{total} ({coverage:.1%})")
+          print(f"Latest market-data date: {df['data_date'].max()}")
+          print("Forecast freshness/coverage gate passed")
+          PY
+
       - name: Run V6 historical strategy backtest
         run: python -m src.strategy_backtest
 
