@@ -9,6 +9,7 @@ ROOT=Path(__file__).resolve().parents[1]
 HISTORY=ROOT/"predictions/history.csv"
 LEARNING=ROOT/"predictions/model_learning.csv"
 SCORECARD=ROOT/"predictions/model_scorecard.csv"
+ROLLING=ROOT/"predictions/rolling_accuracy.csv"
 AVG_LEARNING=ROOT/"predictions/averaging_learning.csv"
 AVG_PLAN=ROOT/"predictions/averaging_plan.csv"
 CONFIG=ROOT/"config/stocks.csv"
@@ -86,6 +87,29 @@ def _write_learning_metrics(history):
     pd.DataFrame(rows,columns=columns).to_csv(LEARNING,index=False)
 
 
+def _write_rolling_accuracy(history):
+    evaluated=history[history["status"].eq("evaluated")].copy()
+    cols=["horizon","completed","mae","rmse","direction_accuracy","bias","last_evaluated_date"]
+    rows=[]
+    if not evaluated.empty:
+        for horizon,g in evaluated.groupby("horizon"):
+            err=pd.to_numeric(g["error"],errors="coerce").dropna()
+            pred=pd.to_numeric(g["predicted_return"],errors="coerce")
+            actual=pd.to_numeric(g["actual_return"],errors="coerce")
+            valid=pd.concat([pred,actual],axis=1).dropna()
+            if err.empty: continue
+            rows.append({
+                "horizon":horizon,
+                "completed":len(err),
+                "mae":float(err.abs().mean()),
+                "rmse":float(np.sqrt((err**2).mean())),
+                "direction_accuracy":float((np.sign(valid.iloc[:,0])==np.sign(valid.iloc[:,1])).mean()) if not valid.empty else np.nan,
+                "bias":float(err.mean()),
+                "last_evaluated_date":str(pd.to_datetime(g["target_date"],errors="coerce").max().date()) if pd.notna(pd.to_datetime(g["target_date"],errors="coerce").max()) else "",
+            })
+    pd.DataFrame(rows,columns=cols).to_csv(ROLLING,index=False)
+
+
 def _write_scorecard(history):
     evaluated=history[history["status"].eq("evaluated")].copy()
     rows=[]
@@ -126,6 +150,7 @@ def append_forecasts(forecast_rows,forecast_date):
     history=evaluate_pending(load_history_table())
     _write_learning_metrics(history)
     _write_scorecard(history)
+    _write_rolling_accuracy(history)
     _evaluate_averaging_plans()
     purchase_prices=_purchase_prices()
     existing_keys=set(zip(history["forecast_date"].astype(str),history["symbol"].astype(str),history["horizon"].astype(str)))
@@ -156,5 +181,6 @@ def append_forecasts(forecast_rows,forecast_date):
     history.to_csv(HISTORY,index=False)
     _write_learning_metrics(history)
     _write_scorecard(history)
+    _write_rolling_accuracy(history)
     _evaluate_averaging_plans()
     return history
