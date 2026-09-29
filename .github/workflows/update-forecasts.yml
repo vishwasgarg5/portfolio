@@ -11,7 +11,7 @@ on:
       - "requirements.txt"
       - ".github/workflows/update-forecasts.yml"
   schedule:
-    - cron: "0 9 * * 1-5"
+    - cron: "50 9 * * 1-5"
 
 permissions:
   contents: write
