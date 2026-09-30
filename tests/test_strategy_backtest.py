@@ -37,3 +37,21 @@ def test_partial_entry_does_not_count_as_full_entry():
     result=_simulate_plan(prices,idx[0],plan)
     assert result["entries_reached"] == 1
     assert result["all_entries_reached"] is False
+
+
+
+def test_v6_training_does_not_use_future_labels(monkeypatch):
+    from src import strategy_backtest as sb
+    from src.model import ForecastResult
+    idx = pd.date_range("2024-01-01", periods=420, freq="B")
+    close = pd.Series(range(100, 520), index=idx, dtype=float)
+    prices = pd.DataFrame({"Open": close, "High": close + 1, "Low": close - 1, "Close": close, "Volume": 1000.0}, index=idx)
+    captured = []
+    def fake_fit(features, feature_columns, target_column, min_rows=None, prediction_features=None):
+        captured.append((len(features), prediction_features.index[-1]))
+        return ForecastResult(0.05, float(prediction_features["Close"].iloc[-1]) * 1.05, -0.05, 0.15, 0.10, 20, len(features), "medium", "hist", {"hist":0.10,"extra_trees":0.11,"historical_median":0.12})
+    monkeypatch.setattr(sb, "fit_forecast", fake_fit)
+    sb.run_strategy_backtest(prices, "TEST.NS", "Test", 100, 100, max_folds=1, step=63)
+    assert captured
+    for train_len, origin_date in captured:
+        assert train_len < len(idx)
