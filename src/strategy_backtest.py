@@ -176,10 +176,18 @@ def run_strategy_backtest(prices, symbol, name, shares, purchase_price,
             labelled_rows = origin + 1 - days
             if labelled_rows < 80:
                 continue
-            train_slice = usable.iloc[:origin + 1].copy()
+            # Only use labels whose full forward horizon was known at the
+            # decision date. The previous implementation accidentally trained
+            # on future-labelled rows, creating look-ahead leakage.
+            train_end = origin + 1 - days
+            if train_end < 80:
+                continue
+            train_slice = usable.iloc[:train_end].copy()
+            prediction_row = features.loc[[date]]
             try:
                 result = fit_forecast(
-                    train_slice, FEATURE_COLUMNS, f"target_{h}"
+                    train_slice, FEATURE_COLUMNS, f"target_{h}",
+                    prediction_features=prediction_row,
                 )
             except Exception as exc:
                 diagnostics["fit_errors"] += 1
@@ -278,7 +286,8 @@ def run():
             prices = load_history(str(r["symbol"]))
             rows.extend(run_strategy_backtest(
                 prices, str(r["symbol"]), str(r["name"]),
-                float(r["shares"]), float(r["purchase_price"])
+                float(r["shares"]), float(r["purchase_price"]),
+                max_folds=4, step=126
             ))
         except Exception as exc:
             rows.append({
