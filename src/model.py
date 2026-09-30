@@ -36,7 +36,7 @@ MODEL_NAMES = ("hist", "extra_trees")
 def _minimum_rows(target_column: str) -> int:
     return 80
 
-def fit_forecast(features, feature_columns, target_column, min_rows=None):
+def fit_forecast(features, feature_columns, target_column, min_rows=None, prediction_features=None):
     required=min_rows if min_rows is not None else _minimum_rows(target_column)
     clean=features.dropna(subset=feature_columns+[target_column]).copy()
     if len(clean)<required:
@@ -67,7 +67,8 @@ def fit_forecast(features, feature_columns, target_column, min_rows=None):
     best_pred=candidate_predictions[best_name]
     mae=candidate_mae[best_name]
 
-    latest=features.dropna(subset=feature_columns).iloc[-1]
+    prediction_source = features if prediction_features is None else prediction_features
+    latest=prediction_source.dropna(subset=feature_columns).iloc[-1]
     if best_name=="historical_median":
         pred=median_return
     else:
