@@ -3,8 +3,16 @@ import numpy as np
 import pandas as pd
 HORIZONS={"3M":63,"6M":126,"9M":189,"12M":252,"18M":378,"24M":504,"36M":756}
 def _rsi(close,period=14):
-    delta=close.diff();gain=delta.clip(lower=0).rolling(period,min_periods=max(5,period//2)).mean();loss=-delta.clip(upper=0).rolling(period,min_periods=max(5,period//2)).mean()
-    rs=gain/loss.replace(0,np.nan);return 100-(100/(1+rs))
+    delta=close.diff()
+    gain=delta.clip(lower=0).rolling(period,min_periods=max(5,period//2)).mean()
+    loss=-delta.clip(upper=0).rolling(period,min_periods=max(5,period//2)).mean()
+    rs=gain/loss.replace(0,np.nan)
+    rsi=100-(100/(1+rs))
+    # A window with gains and no losses is maximally strong, not missing.
+    rsi=rsi.mask((loss==0)&(gain>0),100.0)
+    # A completely flat window has neutral momentum.
+    rsi=rsi.mask((loss==0)&(gain==0),50.0)
+    return rsi
 def make_features(price,benchmark=None):
     df=price.copy().sort_index();close=df["Close"];volume=df["Volume"].replace(0,np.nan);out=df.copy()
     out["return_1d"]=close.pct_change();out["return_5d"]=close.pct_change(5);out["return_20d"]=close.pct_change(20);out["return_60d"]=close.pct_change(60)
