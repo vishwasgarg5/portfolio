@@ -20,14 +20,15 @@
 - 3M: plans 1, target 100.0%, mean partial 48.55%
 - 9M: plans 1, target 0.0%, mean partial 20.98%
 - 24M: plans 4, target 0.0%, mean partial -3.03%
-- 18M: plans 5, target 60.0%, mean partial 9.75%
+- 18M: plans 4, target 75.0%, mean partial 13.16%
+- 36M: plans 1, target 0.0%, mean partial -8.04%
 
 ## Partial-position outcome
-- Mean: 6.25%
+- Mean: 5.97%
 - Median: 2.56%
 - Positive outcome rate: 60.0%
-- Mean additional capital deployed: ₹14,083
-- Median additional capital deployed: ₹10,741
+- Mean additional capital deployed: ₹13,602
+- Median additional capital deployed: ₹10,320
 
 ## V6 changes
 - Blocks new averaging plans when the decision-date trend is deteriorating.
