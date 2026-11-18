@@ -13,8 +13,8 @@ Averaging scenarios are mathematical cost-basis calculations. The profit-signal 
 ## Vedanta Iron & Steel (VISL.NS)
 - Quantity: 1000.0
 - Purchase price: 31.84
-- Current price: 25.959999084472656
-- Current P/L: ₹-5880.00
+- Current price: 24.170000076293945
+- Current P/L: ₹-7670.00
 - First forecast horizon at/above purchase price: Unavailable: insufficient history
 
 - 3M: N/A — Insufficient history for target_3M: 0 labelled rows < 80
@@ -31,17 +31,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Yes Bank (YESBANK.NS)
 - Quantity: 902.0
 - Purchase price: 23.57
-- Current price: 18.020000457763672
-- Current P/L: ₹-5006.10
+- Current price: 17.68000030517578
+- Current P/L: ₹-5312.78
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹17.98 | model=historical_median | error band=±17.82%
-- 6M: ₹17.67 | model=historical_median | error band=±14.98%
-- 9M: ₹17.23 | model=historical_median | error band=±23.03%
-- 12M: ₹17.99 | model=extra_trees | error band=±21.48%
-- 18M: ₹13.80 | model=historical_median | error band=±21.88%
-- 24M: ₹16.43 | model=extra_trees | error band=±12.98%
-- 36M: ₹8.65 | model=hist | error band=±16.13%
+- 3M: ₹17.63 | model=historical_median | error band=±17.82%
+- 6M: ₹17.33 | model=historical_median | error band=±14.98%
+- 9M: ₹16.91 | model=historical_median | error band=±23.03%
+- 12M: ₹18.52 | model=extra_trees | error band=±21.75%
+- 18M: ₹13.62 | model=historical_median | error band=±22.05%
+- 24M: ₹17.39 | model=extra_trees | error band=±13.28%
+- 36M: ₹22.42 | model=hist | error band=±16.32%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -49,17 +49,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Reliance Industries (RELIANCE.NS)
 - Quantity: 13.0
 - Purchase price: 1326.42
-- Current price: 1344.800048828125
-- Current P/L: ₹238.94
+- Current price: 1363.0
+- Current P/L: ₹475.54
 - First forecast horizon at/above purchase price: 3M
 
-- 3M: ₹1361.75 | model=historical_median | error band=±14.10%
-- 6M: ₹1392.66 | model=historical_median | error band=±21.97%
-- 9M: ₹1294.72 | model=extra_trees | error band=±25.66%
-- 12M: ₹1348.84 | model=hist | error band=±26.03%
-- 18M: ₹1410.54 | model=hist | error band=±33.73%
-- 24M: ₹1526.10 | model=extra_trees | error band=±37.53%
-- 36M: ₹2413.11 | model=historical_median | error band=±43.25%
+- 3M: ₹1379.84 | model=historical_median | error band=±14.10%
+- 6M: ₹1411.33 | model=historical_median | error band=±21.97%
+- 9M: ₹1356.86 | model=hist | error band=±19.02%
+- 12M: ₹1472.95 | model=hist | error band=±26.03%
+- 18M: ₹1493.40 | model=hist | error band=±33.73%
+- 24M: ₹1519.74 | model=extra_trees | error band=±37.59%
+- 36M: ₹2445.27 | model=historical_median | error band=±43.31%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -67,17 +67,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## NTPC (NTPC.NS)
 - Quantity: 26.0
 - Purchase price: 367.18
-- Current price: 321.25
-- Current P/L: ₹-1194.18
+- Current price: 320.3999938964844
+- Current P/L: ₹-1216.28
 - First forecast horizon at/above purchase price: 12M
 
-- 3M: ₹331.46 | model=historical_median | error band=±15.08%
-- 6M: ₹352.83 | model=historical_median | error band=±17.62%
-- 9M: ₹353.36 | model=historical_median | error band=±18.85%
-- 12M: ₹373.03 | model=historical_median | error band=±19.07%
-- 18M: ₹421.35 | model=historical_median | error band=±22.98%
-- 24M: ₹428.82 | model=historical_median | error band=±48.57%
-- 36M: ₹497.12 | model=historical_median | error band=±58.72%
+- 3M: ₹330.30 | model=historical_median | error band=±15.08%
+- 6M: ₹345.68 | model=historical_median | error band=±23.64%
+- 9M: ₹351.23 | model=historical_median | error band=±19.87%
+- 12M: ₹371.55 | model=historical_median | error band=±19.07%
+- 18M: ₹425.89 | model=historical_median | error band=±22.98%
+- 24M: ₹428.43 | model=historical_median | error band=±47.31%
+- 36M: ₹492.95 | model=historical_median | error band=±52.67%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -85,16 +85,16 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Indian Renewable Energy (IREDA.NS)
 - Quantity: 350.0
 - Purchase price: 124.5
-- Current price: 115.9499969482422
-- Current P/L: ₹-2992.50
+- Current price: 117.4000015258789
+- Current P/L: ₹-2485.00
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹98.73 | model=extra_trees | error band=±5.97%
-- 6M: ₹94.32 | model=hist | error band=±9.03%
-- 9M: ₹85.50 | model=extra_trees | error band=±2.26%
-- 12M: ₹85.58 | model=historical_median | error band=±2.65%
-- 18M: ₹67.83 | model=hist | error band=±3.88%
-- 24M: ₹63.53 | model=extra_trees | error band=±6.43%
+- 3M: ₹98.74 | model=extra_trees | error band=±5.99%
+- 6M: ₹93.28 | model=hist | error band=±9.06%
+- 9M: ₹84.04 | model=hist | error band=±2.25%
+- 12M: ₹86.71 | model=historical_median | error band=±2.65%
+- 18M: ₹65.67 | model=hist | error band=±3.88%
+- 24M: ₹65.22 | model=extra_trees | error band=±6.23%
 - 36M: N/A — Insufficient history for target_36M: 0 labelled rows < 80
 
 Dividend data: upcoming and historical analysis are in the report CSV.
@@ -103,17 +103,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## IRFC (IRFC.NS)
 - Quantity: 200.0
 - Purchase price: 90.71
-- Current price: 82.11000061035156
-- Current P/L: ₹-1720.00
+- Current price: 82.6500015258789
+- Current P/L: ₹-1612.00
 - First forecast horizon at/above purchase price: 18M
 
-- 3M: ₹68.46 | model=hist | error band=±12.89%
-- 6M: ₹68.32 | model=hist | error band=±30.77%
-- 9M: ₹57.86 | model=hist | error band=±59.58%
-- 12M: ₹65.16 | model=hist | error band=±74.04%
-- 18M: ₹157.92 | model=historical_median | error band=±205.32%
-- 24M: ₹212.64 | model=hist | error band=±57.14%
-- 36M: ₹624.45 | model=hist | error band=±302.56%
+- 3M: ₹66.64 | model=hist | error band=±12.89%
+- 6M: ₹71.06 | model=hist | error band=±30.77%
+- 9M: ₹58.91 | model=hist | error band=±59.58%
+- 12M: ₹61.19 | model=hist | error band=±74.04%
+- 18M: ₹155.57 | model=historical_median | error band=±205.32%
+- 24M: ₹200.72 | model=hist | error band=±56.32%
+- 36M: ₹621.82 | model=hist | error band=±302.56%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -121,17 +121,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Tata Power (TATAPOWER.NS)
 - Quantity: 70.0
 - Purchase price: 437.75
-- Current price: 345.5
-- Current P/L: ₹-6457.50
+- Current price: 344.5
+- Current P/L: ₹-6527.50
 - First forecast horizon at/above purchase price: 18M
 
-- 3M: ₹351.13 | model=historical_median | error band=±12.16%
-- 6M: ₹354.19 | model=historical_median | error band=±17.04%
-- 9M: ₹353.80 | model=historical_median | error band=±14.33%
-- 12M: ₹351.70 | model=historical_median | error band=±17.45%
-- 18M: ₹463.52 | model=historical_median | error band=±43.39%
-- 24M: ₹566.77 | model=historical_median | error band=±79.04%
-- 36M: ₹584.48 | model=extra_trees | error band=±157.00%
+- 3M: ₹350.09 | model=historical_median | error band=±12.16%
+- 6M: ₹353.06 | model=historical_median | error band=±17.04%
+- 9M: ₹352.65 | model=historical_median | error band=±14.33%
+- 12M: ₹350.67 | model=historical_median | error band=±17.45%
+- 18M: ₹461.32 | model=historical_median | error band=±43.39%
+- 24M: ₹565.19 | model=historical_median | error band=±79.04%
+- 36M: ₹585.78 | model=extra_trees | error band=±157.00%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -139,17 +139,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Wipro (WIPRO.NS)
 - Quantity: 310.0
 - Purchase price: 220.21
-- Current price: 193.5399932861328
-- Current P/L: ₹-8267.70
+- Current price: 189.88999938964844
+- Current P/L: ₹-9399.20
 - First forecast horizon at/above purchase price: 24M
 
-- 3M: ₹187.51 | model=extra_trees | error band=±9.56%
-- 6M: ₹183.97 | model=extra_trees | error band=±21.50%
-- 9M: ₹177.40 | model=extra_trees | error band=±27.80%
-- 12M: ₹182.10 | model=extra_trees | error band=±24.70%
-- 18M: ₹174.38 | model=hist | error band=±29.78%
-- 24M: ₹252.07 | model=historical_median | error band=±45.45%
-- 36M: ₹270.26 | model=historical_median | error band=±45.37%
+- 3M: ₹185.38 | model=extra_trees | error band=±9.56%
+- 6M: ₹174.99 | model=extra_trees | error band=±21.50%
+- 9M: ₹167.78 | model=extra_trees | error band=±27.79%
+- 12M: ₹164.46 | model=extra_trees | error band=±24.47%
+- 18M: ₹181.87 | model=hist | error band=±29.78%
+- 24M: ₹247.22 | model=historical_median | error band=±45.45%
+- 36M: ₹264.84 | model=historical_median | error band=±45.37%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -157,17 +157,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Palash Securities (PALASHSECU.NS)
 - Quantity: 300.0
 - Purchase price: 116.75
-- Current price: 78.5
-- Current P/L: ₹-11475.00
-- First forecast horizon at/above purchase price: 36M
+- Current price: 80.0
+- Current P/L: ₹-11025.00
+- First forecast horizon at/above purchase price: 18M
 
-- 3M: ₹78.45 | model=historical_median | error band=±18.12%
-- 6M: ₹83.62 | model=extra_trees | error band=±16.41%
-- 9M: ₹74.14 | model=extra_trees | error band=±26.21%
-- 12M: ₹77.30 | model=extra_trees | error band=±40.49%
-- 18M: ₹111.74 | model=hist | error band=±49.29%
-- 24M: ₹103.80 | model=historical_median | error band=±66.34%
-- 36M: ₹157.60 | model=historical_median | error band=±106.12%
+- 3M: ₹79.95 | model=historical_median | error band=±18.12%
+- 6M: ₹86.15 | model=extra_trees | error band=±16.41%
+- 9M: ₹76.96 | model=extra_trees | error band=±26.21%
+- 12M: ₹81.61 | model=extra_trees | error band=±40.49%
+- 18M: ₹135.53 | model=hist | error band=±38.65%
+- 24M: ₹131.36 | model=hist | error band=±66.34%
+- 36M: ₹160.60 | model=historical_median | error band=±106.12%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -175,16 +175,16 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Ola Electric Mobility (OLAELEC.NS)
 - Quantity: 2842.0
 - Purchase price: 50.68
-- Current price: 33.72999954223633
-- Current P/L: ₹-48171.90
+- Current price: 33.2400016784668
+- Current P/L: ₹-49564.48
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹28.17 | model=historical_median | error band=±12.25%
-- 6M: ₹25.34 | model=extra_trees | error band=±15.55%
-- 9M: ₹23.34 | model=hist | error band=±9.69%
-- 12M: ₹23.23 | model=historical_median | error band=±4.71%
-- 18M: ₹17.25 | model=hist | error band=±4.35%
-- 24M: N/A — Insufficient history for target_24M: 2 labelled rows < 80
+- 3M: ₹27.80 | model=historical_median | error band=±12.25%
+- 6M: ₹25.31 | model=extra_trees | error band=±15.54%
+- 9M: ₹22.60 | model=hist | error band=±9.69%
+- 12M: ₹22.78 | model=historical_median | error band=±4.70%
+- 18M: ₹16.93 | model=hist | error band=±4.31%
+- 24M: N/A — Insufficient history for target_24M: 3 labelled rows < 80
 - 36M: N/A — Insufficient history for target_36M: 0 labelled rows < 80
 
 Dividend data: upcoming and historical analysis are in the report CSV.
@@ -193,17 +193,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Star Cement (STARCEMENT.NS)
 - Quantity: 86.0
 - Purchase price: 270.6
-- Current price: 174.4600067138672
-- Current P/L: ₹-8268.04
+- Current price: 173.44000244140625
+- Current P/L: ₹-8355.76
 - First forecast horizon at/above purchase price: 24M
 
-- 3M: ₹173.70 | model=historical_median | error band=±20.56%
-- 6M: ₹164.60 | model=extra_trees | error band=±16.19%
-- 9M: ₹176.31 | model=historical_median | error band=±24.47%
-- 12M: ₹177.91 | model=historical_median | error band=±24.59%
-- 18M: ₹193.36 | model=historical_median | error band=±24.08%
-- 24M: ₹292.27 | model=extra_trees | error band=±29.94%
-- 36M: ₹238.96 | model=historical_median | error band=±38.46%
+- 3M: ₹172.63 | model=historical_median | error band=±20.60%
+- 6M: ₹169.44 | model=extra_trees | error band=±16.09%
+- 9M: ₹178.60 | model=historical_median | error band=±24.31%
+- 12M: ₹176.53 | model=historical_median | error band=±26.86%
+- 18M: ₹186.96 | model=historical_median | error band=±23.39%
+- 24M: ₹279.47 | model=extra_trees | error band=±36.34%
+- 36M: ₹236.85 | model=historical_median | error band=±36.17%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -211,17 +211,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## SJVN (SJVN.NS)
 - Quantity: 73.0
 - Purchase price: 106.72
-- Current price: 56.58000183105469
-- Current P/L: ₹-3660.22
+- Current price: 55.880001068115234
+- Current P/L: ₹-3711.32
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹54.17 | model=extra_trees | error band=±17.98%
-- 6M: ₹54.79 | model=historical_median | error band=±29.42%
-- 9M: ₹55.40 | model=historical_median | error band=±34.89%
-- 12M: ₹56.81 | model=historical_median | error band=±42.65%
-- 18M: ₹63.96 | model=historical_median | error band=±60.32%
-- 24M: ₹73.58 | model=historical_median | error band=±86.22%
-- 36M: ₹100.06 | model=historical_median | error band=±95.16%
+- 3M: ₹54.32 | model=extra_trees | error band=±17.98%
+- 6M: ₹54.10 | model=historical_median | error band=±29.42%
+- 9M: ₹54.70 | model=historical_median | error band=±34.89%
+- 12M: ₹56.10 | model=historical_median | error band=±42.65%
+- 18M: ₹63.19 | model=historical_median | error band=±60.32%
+- 24M: ₹72.61 | model=historical_median | error band=±86.22%
+- 36M: ₹98.83 | model=historical_median | error band=±95.15%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -229,17 +229,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## Reliance Power (RPOWER.NS)
 - Quantity: 2250.0
 - Purchase price: 40.01
-- Current price: 18.06999969482422
-- Current P/L: ₹-49365.00
+- Current price: 17.940000534057617
+- Current P/L: ₹-49657.50
 - First forecast horizon at/above purchase price: 36M
 
-- 3M: ₹17.12 | model=historical_median | error band=±31.94%
-- 6M: ₹17.49 | model=historical_median | error band=±27.30%
-- 9M: ₹16.84 | model=historical_median | error band=±45.34%
-- 12M: ₹18.14 | model=historical_median | error band=±61.50%
-- 18M: ₹20.88 | model=historical_median | error band=±129.48%
-- 24M: ₹28.76 | model=hist | error band=±99.85%
-- 36M: ₹42.66 | model=historical_median | error band=±119.70%
+- 3M: ₹17.00 | model=historical_median | error band=±31.94%
+- 6M: ₹17.36 | model=historical_median | error band=±27.38%
+- 9M: ₹16.72 | model=historical_median | error band=±45.34%
+- 12M: ₹18.00 | model=historical_median | error band=±61.50%
+- 18M: ₹20.93 | model=historical_median | error band=±129.75%
+- 24M: ₹29.88 | model=hist | error band=±99.85%
+- 36M: ₹42.41 | model=historical_median | error band=±119.70%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -247,17 +247,17 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## IRCTC (IRCTC.NS)
 - Quantity: 61.0
 - Purchase price: 913.6
-- Current price: 451.6499938964844
-- Current P/L: ₹-28178.95
+- Current price: 449.3500061035156
+- Current P/L: ₹-28319.25
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹440.14 | model=extra_trees | error band=±14.96%
-- 6M: ₹438.69 | model=historical_median | error band=±21.31%
-- 9M: ₹439.08 | model=historical_median | error band=±32.40%
-- 12M: ₹503.00 | model=historical_median | error band=±48.64%
-- 18M: ₹574.71 | model=historical_median | error band=±68.18%
-- 24M: ₹546.83 | model=historical_median | error band=±65.73%
-- 36M: ₹829.09 | model=extra_trees | error band=±114.45%
+- 3M: ₹430.75 | model=extra_trees | error band=±14.96%
+- 6M: ₹436.35 | model=historical_median | error band=±21.31%
+- 9M: ₹436.84 | model=historical_median | error band=±32.40%
+- 12M: ₹500.34 | model=historical_median | error band=±48.64%
+- 18M: ₹571.48 | model=historical_median | error band=±68.18%
+- 24M: ₹543.24 | model=historical_median | error band=±65.73%
+- 36M: ₹836.85 | model=extra_trees | error band=±114.35%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -265,16 +265,16 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 ## SEPC (SEPC.NS)
 - Quantity: 979.0
 - Purchase price: 12.08
-- Current price: 4.920000076293945
-- Current P/L: ₹-7009.64
+- Current price: 4.900000095367432
+- Current P/L: ₹-7029.22
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹4.69 | model=historical_median | error band=±15.24%
-- 6M: ₹4.80 | model=historical_median | error band=±21.60%
-- 9M: ₹3.01 | model=hist | error band=±54.31%
-- 12M: ₹3.02 | model=hist | error band=±49.47%
-- 18M: ₹5.41 | model=historical_median | error band=±55.81%
-- 24M: ₹5.61 | model=historical_median | error band=±65.43%
+- 3M: ₹4.73 | model=historical_median | error band=±15.24%
+- 6M: ₹4.77 | model=historical_median | error band=±21.60%
+- 9M: ₹2.80 | model=hist | error band=±54.31%
+- 12M: ₹3.15 | model=hist | error band=±49.47%
+- 18M: ₹5.38 | model=historical_median | error band=±55.81%
+- 24M: ₹5.62 | model=historical_median | error band=±65.43%
 - 36M: ₹4.52 | model=historical_median | error band=±59.09%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
