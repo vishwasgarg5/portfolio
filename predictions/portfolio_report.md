@@ -36,12 +36,12 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: 24M
 
 - 3M: ₹17.68 | model=historical_median | error band=±20.21%
-- 6M: ₹17.32 | model=historical_median | error band=±14.97%
+- 6M: ₹17.33 | model=historical_median | error band=±14.98%
 - 9M: ₹16.94 | model=historical_median | error band=±23.03%
-- 12M: ₹18.75 | model=extra_trees | error band=±21.71%
-- 18M: ₹13.68 | model=historical_median | error band=±21.92%
-- 24M: ₹24.12 | model=hist | error band=±13.52%
-- 36M: ₹28.71 | model=hist | error band=±16.20%
+- 12M: ₹18.69 | model=extra_trees | error band=±21.59%
+- 18M: ₹13.68 | model=historical_median | error band=±21.61%
+- 24M: ₹24.14 | model=hist | error band=±12.68%
+- 36M: ₹28.62 | model=hist | error band=±16.15%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -55,11 +55,11 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 
 - 3M: ₹1373.69 | model=historical_median | error band=±13.20%
 - 6M: ₹1398.80 | model=historical_median | error band=±21.97%
-- 9M: ₹1368.54 | model=hist | error band=±18.98%
-- 12M: ₹1359.81 | model=hist | error band=±26.03%
-- 18M: ₹1449.70 | model=hist | error band=±33.73%
-- 24M: ₹1513.17 | model=extra_trees | error band=±37.53%
-- 36M: ₹2421.80 | model=historical_median | error band=±43.26%
+- 9M: ₹1293.20 | model=extra_trees | error band=±19.04%
+- 12M: ₹1362.43 | model=hist | error band=±26.03%
+- 18M: ₹1442.39 | model=hist | error band=±33.73%
+- 24M: ₹1513.13 | model=extra_trees | error band=±37.59%
+- 36M: ₹2421.62 | model=historical_median | error band=±43.53%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -71,13 +71,13 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - Current P/L: ₹-1344.98
 - First forecast horizon at/above purchase price: 18M
 
-- 3M: ₹322.81 | model=historical_median | error band=±15.08%
-- 6M: ₹341.33 | model=historical_median | error band=±23.64%
+- 3M: ₹328.75 | model=historical_median | error band=±15.08%
+- 6M: ₹339.85 | model=historical_median | error band=±23.64%
 - 9M: ₹345.68 | model=historical_median | error band=±19.87%
-- 12M: ₹356.77 | model=historical_median | error band=±19.03%
-- 18M: ₹421.68 | model=historical_median | error band=±28.07%
-- 24M: ₹415.62 | model=historical_median | error band=±44.71%
-- 36M: ₹492.19 | model=historical_median | error band=±53.83%
+- 12M: ₹360.76 | model=historical_median | error band=±19.03%
+- 18M: ₹416.32 | model=historical_median | error band=±28.07%
+- 24M: ₹417.95 | model=historical_median | error band=±48.27%
+- 36M: ₹487.90 | model=historical_median | error band=±57.20%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -90,11 +90,11 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
 - 3M: ₹111.31 | model=extra_trees | error band=±5.99%
-- 6M: ₹118.03 | model=hist | error band=±9.06%
-- 9M: ₹95.38 | model=hist | error band=±2.27%
+- 6M: ₹118.21 | model=hist | error band=±9.03%
+- 9M: ₹95.37 | model=hist | error band=±2.28%
 - 12M: ₹97.94 | model=historical_median | error band=±2.65%
 - 18M: ₹74.35 | model=hist | error band=±3.88%
-- 24M: ₹76.46 | model=extra_trees | error band=±6.32%
+- 24M: ₹76.54 | model=extra_trees | error band=±6.33%
 - 36M: N/A — Insufficient history for target_36M: 0 labelled rows < 80
 
 Dividend data: upcoming and historical analysis are in the report CSV.
@@ -107,13 +107,13 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - Current P/L: ₹-1982.00
 - First forecast horizon at/above purchase price: 18M
 
-- 3M: ₹66.19 | model=hist | error band=±12.89%
-- 6M: ₹63.91 | model=hist | error band=±30.77%
-- 9M: ₹54.88 | model=hist | error band=±59.58%
-- 12M: ₹58.67 | model=hist | error band=±74.04%
+- 3M: ₹65.51 | model=hist | error band=±12.89%
+- 6M: ₹63.76 | model=hist | error band=±30.77%
+- 9M: ₹56.04 | model=hist | error band=±59.58%
+- 12M: ₹59.47 | model=hist | error band=±74.04%
 - 18M: ₹147.32 | model=historical_median | error band=±205.32%
-- 24M: ₹159.87 | model=hist | error band=±57.39%
-- 36M: ₹639.94 | model=hist | error band=±302.56%
+- 24M: ₹162.47 | model=hist | error band=±56.68%
+- 36M: ₹637.66 | model=hist | error band=±302.56%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -131,7 +131,7 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - 12M: ₹333.63 | model=historical_median | error band=±17.45%
 - 18M: ₹440.02 | model=historical_median | error band=±43.39%
 - 24M: ₹538.80 | model=historical_median | error band=±79.04%
-- 36M: ₹648.85 | model=extra_trees | error band=±157.00%
+- 36M: ₹649.74 | model=extra_trees | error band=±157.00%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -143,11 +143,11 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - Current P/L: ₹-10205.20
 - First forecast horizon at/above purchase price: 24M
 
-- 3M: ₹182.23 | model=extra_trees | error band=±8.94%
-- 6M: ₹172.23 | model=extra_trees | error band=±21.50%
-- 9M: ₹165.15 | model=extra_trees | error band=±27.80%
-- 12M: ₹160.03 | model=extra_trees | error band=±24.23%
-- 18M: ₹191.52 | model=hist | error band=±29.78%
+- 3M: ₹182.20 | model=extra_trees | error band=±8.94%
+- 6M: ₹173.09 | model=extra_trees | error band=±21.50%
+- 9M: ₹165.59 | model=extra_trees | error band=±27.92%
+- 12M: ₹160.75 | model=extra_trees | error band=±24.35%
+- 18M: ₹193.08 | model=hist | error band=±29.78%
 - 24M: ₹243.33 | model=historical_median | error band=±45.45%
 - 36M: ₹260.76 | model=historical_median | error band=±45.37%
 
@@ -162,11 +162,11 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: 24M
 
 - 3M: ₹81.26 | model=historical_median | error band=±18.12%
-- 6M: ₹81.30 | model=extra_trees | error band=±16.41%
-- 9M: ₹72.91 | model=extra_trees | error band=±26.21%
-- 12M: ₹69.23 | model=extra_trees | error band=±40.49%
+- 6M: ₹81.46 | model=extra_trees | error band=±16.41%
+- 9M: ₹72.78 | model=extra_trees | error band=±26.21%
+- 12M: ₹68.88 | model=extra_trees | error band=±40.49%
 - 18M: ₹102.73 | model=hist | error band=±38.65%
-- 24M: ₹122.06 | model=hist | error band=±66.34%
+- 24M: ₹121.68 | model=hist | error band=±66.34%
 - 36M: ₹163.22 | model=historical_median | error band=±106.12%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
@@ -180,9 +180,9 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
 - 3M: ₹26.90 | model=historical_median | error band=±12.32%
-- 6M: ₹24.79 | model=extra_trees | error band=±15.58%
+- 6M: ₹24.84 | model=extra_trees | error band=±15.58%
 - 9M: ₹21.59 | model=hist | error band=±9.69%
-- 12M: ₹23.92 | model=extra_trees | error band=±4.71%
+- 12M: ₹23.95 | model=extra_trees | error band=±4.71%
 - 18M: ₹16.64 | model=hist | error band=±4.13%
 - 24M: N/A — Insufficient history for target_24M: 7 labelled rows < 80
 - 36M: N/A — Insufficient history for target_36M: 0 labelled rows < 80
@@ -197,13 +197,13 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - Current P/L: ₹-8320.50
 - First forecast horizon at/above purchase price: 24M
 
-- 3M: ₹173.09 | model=historical_median | error band=±20.74%
-- 6M: ₹169.43 | model=extra_trees | error band=±16.01%
-- 9M: ₹177.77 | model=historical_median | error band=±25.31%
-- 12M: ₹177.28 | model=historical_median | error band=±23.09%
-- 18M: ₹190.54 | model=historical_median | error band=±24.78%
-- 24M: ₹333.76 | model=extra_trees | error band=±38.17%
-- 36M: ₹241.44 | model=historical_median | error band=±50.50%
+- 3M: ₹173.07 | model=historical_median | error band=±20.75%
+- 6M: ₹168.49 | model=extra_trees | error band=±16.02%
+- 9M: ₹177.77 | model=historical_median | error band=±23.12%
+- 12M: ₹177.05 | model=historical_median | error band=±26.50%
+- 18M: ₹190.59 | model=historical_median | error band=±26.32%
+- 24M: ₹338.46 | model=extra_trees | error band=±30.15%
+- 36M: ₹240.76 | model=historical_median | error band=±37.38%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -220,8 +220,8 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - 9M: ₹53.33 | model=historical_median | error band=±35.31%
 - 12M: ₹55.15 | model=historical_median | error band=±42.65%
 - 18M: ₹62.15 | model=historical_median | error band=±60.32%
-- 24M: ₹70.08 | model=historical_median | error band=±86.22%
-- 36M: ₹97.25 | model=historical_median | error band=±95.17%
+- 24M: ₹71.86 | model=historical_median | error band=±86.22%
+- 36M: ₹97.25 | model=historical_median | error band=±95.16%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -234,12 +234,12 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: 36M
 
 - 3M: ₹15.90 | model=historical_median | error band=±26.45%
-- 6M: ₹16.70 | model=historical_median | error band=±27.32%
+- 6M: ₹16.72 | model=historical_median | error band=±27.30%
 - 9M: ₹15.13 | model=historical_median | error band=±42.49%
-- 12M: ₹17.31 | model=historical_median | error band=±61.50%
-- 18M: ₹20.08 | model=historical_median | error band=±129.42%
-- 24M: ₹34.84 | model=hist | error band=±99.85%
-- 36M: ₹40.94 | model=historical_median | error band=±119.70%
+- 12M: ₹17.34 | model=historical_median | error band=±61.50%
+- 18M: ₹20.04 | model=historical_median | error band=±129.44%
+- 24M: ₹35.24 | model=hist | error band=±99.85%
+- 36M: ₹40.77 | model=historical_median | error band=±119.70%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -251,13 +251,13 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - Current P/L: ₹-28450.40
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
-- 3M: ₹430.39 | model=extra_trees | error band=±10.53%
+- 3M: ₹429.39 | model=extra_trees | error band=±10.52%
 - 6M: ₹433.72 | model=historical_median | error band=±21.31%
 - 9M: ₹433.04 | model=historical_median | error band=±32.40%
 - 12M: ₹497.85 | model=historical_median | error band=±48.64%
 - 18M: ₹567.74 | model=historical_median | error band=±68.18%
 - 24M: ₹538.74 | model=historical_median | error band=±65.73%
-- 36M: ₹582.47 | model=hist | error band=±114.45%
+- 36M: ₹588.58 | model=hist | error band=±114.45%
 
 Dividend data: upcoming and historical analysis are in the report CSV.
 Averaging scenarios: see predictions/averaging_scenarios.csv
@@ -270,8 +270,8 @@ Averaging scenarios: see predictions/averaging_scenarios.csv
 - First forecast horizon at/above purchase price: Not reached in available forecast
 
 - 3M: ₹4.55 | model=historical_median | error band=±15.24%
-- 6M: ₹4.68 | model=historical_median | error band=±21.60%
-- 9M: ₹2.84 | model=hist | error band=±54.31%
+- 6M: ₹4.66 | model=historical_median | error band=±21.60%
+- 9M: ₹3.17 | model=extra_trees | error band=±54.31%
 - 12M: ₹3.53 | model=extra_trees | error band=±49.47%
 - 18M: ₹5.22 | model=historical_median | error band=±55.81%
 - 24M: ₹5.56 | model=historical_median | error band=±65.43%
